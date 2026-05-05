@@ -1,42 +1,37 @@
+#USE THIS WHEN UPDATING GAME TO UPDATE IN VNC: pkill -f "python main.py"; DISPLAY=:99 python main.py &
 import pygame
 
 # pygame setup
 pygame.init()
-screen = pygame.display.set_mode((1280, 720))
+
+bottom_panel = 500
+screen_width = 1280
+screen_height = 720 + bottom_panel
+
+screen = pygame.display.set_mode((screen_width, screen_height))
+
 clock = pygame.time.Clock()
-running = True
+run = True
 dt = 0
 
-player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
+backround_img = pygame.transform.scale(pygame.image.load("/workspaces/2026SE_MajorProject_Kelvin.A/assets/Backgrounds/background.jpg").convert_alpha(), (1280, 720))
 
-while running:
-    # poll for events
-    # pygame.QUIT event means the user clicked X to close your window
+def draw_bg():
+    screen.blit(backround_img, (0, 0))
+
+while run:
+    
+    #draw background
+    draw_bg()
+    
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            running = False
+            run = False
 
-    # fill the screen with a color to wipe away anything from last frame
-    screen.fill("purple")
 
-    pygame.draw.circle(screen, "red", player_pos, 40)
-
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_w]:
-        player_pos.y -= 300 * dt
-    if keys[pygame.K_s]:
-        player_pos.y += 300 * dt
-    if keys[pygame.K_a]:
-        player_pos.x -= 300 * dt
-    if keys[pygame.K_d]:
-        player_pos.x += 300 * dt
-
-    # flip() the display to put your work on screen
+    # flip() the display
     pygame.display.flip()
 
-    # limits FPS to 60
-    # dt is delta time in seconds since last frame, used for framerate-
-    # independent physics.
     dt = clock.tick(60) / 1000
 
 pygame.quit()
