@@ -1,11 +1,11 @@
-#USE THIS WHEN UPDATING GAME TO UPDATE IN VNC: bash start.sh
+#USE THIS WHEN UPDATING/STARTING GAME TO UPDATE IN VNC: bash start.sh
 import pygame
 import gif_pygame
 
 # pygame setup
 pygame.init()
 
-bottom_panel = 360  # 1/3 of 1080, matches panel image natural aspect ratio at 1920px wide
+bottom_panel = 360  
 screen_width = 1920
 screen_height = 1080
 
@@ -43,11 +43,8 @@ while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
-
-
-    # flip() the display
+    
     pygame.display.flip()
-
     dt = clock.tick(60) / 1000
 
 pygame.quit()

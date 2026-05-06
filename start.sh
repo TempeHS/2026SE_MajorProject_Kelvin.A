@@ -8,12 +8,12 @@ chmod 700 /tmp/runtime-$USER
 export XDG_RUNTIME_DIR=/tmp/runtime-$USER
 
 # Kill all existing instances to ensure correct resolution
-pkill -f "python main.py" 2>/dev/null
-pkill -f "x11vnc" 2>/dev/null
-pkill -f "novnc_proxy" 2>/dev/null
-pkill -f "websockify" 2>/dev/null
-pkill -f "Xvfb" 2>/dev/null
-sleep 1
+pkill -9 -f "python main.py" 2>/dev/null
+pkill -9 -f "x11vnc" 2>/dev/null
+pkill -9 -f "novnc_proxy" 2>/dev/null
+pkill -9 -f "websockify" 2>/dev/null
+pkill -9 -f "Xvfb" 2>/dev/null
+sleep 2
 
 # Start VNC stack
 echo "Starting Xvfb..."
@@ -21,7 +21,7 @@ Xvfb :99 -screen 0 1920x1080x24 &
 sleep 1
 
 echo "Starting x11vnc..."
-x11vnc -display :99 -nopw -listen localhost -xkb -forever -quiet &
+x11vnc -display :99 -nopw -listen localhost -xkb -forever -quiet -rfbport 5900 &
 sleep 1
 
 echo "Starting noVNC..."
