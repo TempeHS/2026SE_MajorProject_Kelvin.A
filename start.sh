@@ -17,12 +17,21 @@ sleep 2
 
 # Start VNC stack
 echo "Starting Xvfb..."
-Xvfb :99 -screen 0 1920x1080x24 &
+Xvfb :99 -screen 0 1920x1080x24 -extension DPMS &
 sleep 1
 
 echo "Starting x11vnc..."
 x11vnc -display :99 -nopw -listen localhost -xkb -forever -quiet -rfbport 5900 &
-sleep 1
+
+# Wait until x11vnc is actually listening on port 5900 (up to 15 seconds)
+echo "Waiting for x11vnc on port 5900..."
+for i in $(seq 1 15); do
+    if nc -z localhost 5900 2>/dev/null; then
+        echo "x11vnc is ready."
+        break
+    fi
+    sleep 1
+done
 
 echo "Starting noVNC..."
 /usr/share/novnc/utils/novnc_proxy --vnc localhost:5900 --listen 6080 &
