@@ -1,4 +1,5 @@
 #USE THIS WHEN UPDATING/STARTING GAME TO UPDATE IN VNC: bash start.sh
+import os
 import pygame
 import gif_pygame
 
@@ -31,7 +32,7 @@ def draw_panel():
     screen.blit(panel_img, (0, screen_height - bottom_panel))
 
 class Fighter():
-    def __init__(self, x, y, name, max_hp, strength, potions):
+    def __init__(self, x, y, name, max_hp, strength, potions, flip=False):
         self.name = name
         self.max_hp = max_hp
         self.hp = max_hp
@@ -39,16 +40,45 @@ class Fighter():
         self.start_potions = potions
         self.potions = potions
         self.alive = True
-        self.image = pygame.image.load(f"/workspaces/2026SE_MajorProject_Kelvin.A/assets/sprites/{self.name}/Idle/1.png").convert_alpha()
+        self.animation_list = []
+        self.frame_index = 0
+        self.action = 0 #0: idle, 1: attack, 2: hurt, 3: death
+        self.update_time = pygame.time.get_ticks()
+        idle_path = f"/workspaces/2026SE_MajorProject_Kelvin.A/assets/sprites/{self.name}/Idle"
+        frame_count = len([f for f in os.listdir(idle_path) if f.endswith(".png")])
+        for i in range(1, frame_count + 1):
+            img = pygame.image.load(f"{idle_path}/{i}.png").convert_alpha()
+            img = pygame.transform.scale(img, (img.get_width() * 3, img.get_height() * 3))
+            if flip:
+                img = pygame.transform.flip(img, True, False)
+            self.animation_list.append(img)
+        self.image = self.animation_list[self.frame_index]
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
-        
+    
+    def update(self):
+        animation_cooldown = 100
+        #Handle animation
+        #update image
+        self.image = self.animation_list[self.frame_index]
+        #Check the time before updating animation
+        if pygame.time.get_ticks() - self.update_time > animation_cooldown:
+            self.update_time = pygame.time.get_ticks()
+            self.frame_index += 1
+        #Reset to start if animation has reached the end
+        if self.frame_index >= len(self.animation_list):
+            self.frame_index = 0
+    
     def draw(self):
         screen.blit(self.image, self.rect)
         
-    Samurai = Fighter(500,500, "Samurai_1", 30, 10, 3)
+Samurai = Fighter(500,500, "Samurai", 30, 10, 3)
+Enemy1 = Fighter(1400,500, "Enemy1", 40, 8, 2, flip=True)
+Enemy2 = Fighter(1700,500, "Enemy1", 40, 8, 2, flip=True)
     
-    
+Enemy_list = []
+Enemy_list.append(Enemy1)
+Enemy_list.append(Enemy2)
     
 while run:
     
@@ -59,6 +89,13 @@ while run:
     
     #draw panel
     draw_panel()
+    
+    #draw fighters
+    Samurai.update()
+    Samurai.draw()
+    for enemy in Enemy_list:
+        enemy.update()
+        enemy.draw()
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
