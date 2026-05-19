@@ -43,6 +43,8 @@ class Fighter():
         self.animation_list = []
         self.frame_index = 0
         self.action = 0 #0: idle, 1: attack, 2: hurt, 3: death
+        #Load images
+        temp_list = []
         self.update_time = pygame.time.get_ticks()
         idle_path = f"/workspaces/2026SE_MajorProject_Kelvin.A/assets/sprites/{self.name}/Idle"
         frame_count = len([f for f in os.listdir(idle_path) if f.endswith(".png")])
@@ -51,8 +53,9 @@ class Fighter():
             img = pygame.transform.scale(img, (img.get_width() * 3, img.get_height() * 3))
             if flip:
                 img = pygame.transform.flip(img, True, False)
-            self.animation_list.append(img)
-        self.image = self.animation_list[self.frame_index]
+            temp_list.append(img)
+        self.animation_list.append(temp_list)
+        self.image = self.animation_list[self.action][self.frame_index]
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
     
@@ -60,13 +63,13 @@ class Fighter():
         animation_cooldown = 100
         #Handle animation
         #update image
-        self.image = self.animation_list[self.frame_index]
+        self.image = self.animation_list[self.action][self.frame_index]
         #Check the time before updating animation
         if pygame.time.get_ticks() - self.update_time > animation_cooldown:
             self.update_time = pygame.time.get_ticks()
             self.frame_index += 1
         #Reset to start if animation has reached the end
-        if self.frame_index >= len(self.animation_list):
+        if self.frame_index >= len(self.animation_list[self.action]):
             self.frame_index = 0
     
     def draw(self):
