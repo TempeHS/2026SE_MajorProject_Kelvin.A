@@ -102,7 +102,8 @@ class Fighter():
         #Anchor to the bottom of the image
         draw_rect = self.image.get_rect(midbottom=self.rect.midbottom)
         screen.blit(self.image, draw_rect)
-        
+
+#Fighter Locations and stats
 Samurai = Fighter(500,600, "Samurai", 30, 10, 3)
 Enemy1 = Fighter(1400,600, "Enemy", 40, 8, 2, flip=True)
 Enemy2 = Fighter(1650,590, "Enemy", 40, 8, 2, flip=True)
