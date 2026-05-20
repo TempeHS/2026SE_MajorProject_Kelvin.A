@@ -1,5 +1,6 @@
 #USE THIS WHEN UPDATING/STARTING GAME TO UPDATE IN VNC: bash start.sh
 import os
+import random
 import pygame
 import gif_pygame
 
@@ -19,7 +20,7 @@ dt = 0
 _bg_raw = gif_pygame.load("/workspaces/2026SE_MajorProject_Kelvin.A/assets/backgrounds/Background.gif")
 _bg_size = (screen_width, screen_height - bottom_panel)
 backround_img = gif_pygame.GIFPygame(
-    [(pygame.transform.scale(surf, _bg_size), dur) for surf, dur in _bg_raw.get_frame_data()]
+    [(pygame.transform.scale(surf, _bg_size).convert(), dur) for surf, dur in _bg_raw.get_frame_data()]
 )
 panel_img = pygame.transform.scale(pygame.image.load("/workspaces/2026SE_MajorProject_Kelvin.A/assets/icons/panel.png").convert_alpha(), (screen_width, bottom_panel))
 
@@ -42,8 +43,8 @@ class Fighter():
         self.alive = True
         self.animation_list = []
         self.frame_index = 0
-        self.action = 0 #0: idle, 1: attack, 2: hurt, 3: death
-        #Load images
+        self.action = 1 #0: Idle, 1: Attack, 2: Defend 3: Run 4: Hurt, 5: Death
+        #Load Idle images
         temp_list = []
         self.update_time = pygame.time.get_ticks()
         idle_path = f"/workspaces/2026SE_MajorProject_Kelvin.A/assets/sprites/{self.name}/Idle"
@@ -55,12 +56,35 @@ class Fighter():
                 img = pygame.transform.flip(img, True, False)
             temp_list.append(img)
         self.animation_list.append(temp_list)
+        
+        # Load all Attack_* variant images
+        base_path = f"/workspaces/2026SE_MajorProject_Kelvin.A/assets/sprites/{self.name}"
+        self.attack_variants = []
+        attack_folders = sorted([d for d in os.listdir(base_path) if d.startswith("Attack_")])
+        for folder in attack_folders:
+            temp_list = []
+            attack_path = f"{base_path}/{folder}"
+            frame_count = len([f for f in os.listdir(attack_path) if f.endswith(".png")])
+            for i in range(1, frame_count + 1):
+                img = pygame.image.load(f"{attack_path}/{i}.png").convert_alpha()
+                img = pygame.transform.scale(img, (img.get_width() * 3, img.get_height() * 3))
+                if flip:
+                    img = pygame.transform.flip(img, True, False)
+                temp_list.append(img)
+            self.attack_variants.append(temp_list)
+        # Set a random attack
+        self.animation_list.append(random.choice(self.attack_variants))
         self.image = self.animation_list[self.action][self.frame_index]
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
     
+    def pick_attack(self):
+        # Randomly select an Attack_* variant for the next attack
+        self.animation_list[1] = random.choice(self.attack_variants)
+        self.frame_index = 0
+
     def update(self):
-        animation_cooldown = 100
+        animation_cooldown = 135
         #Handle animation
         #update image
         self.image = self.animation_list[self.action][self.frame_index]
@@ -73,11 +97,13 @@ class Fighter():
             self.frame_index = 0
     
     def draw(self):
-        screen.blit(self.image, self.rect)
+        # Always draw centered on the fixed position so frame size differences don't shift the character
+        draw_rect = self.image.get_rect(center=self.rect.center)
+        screen.blit(self.image, draw_rect)
         
 Samurai = Fighter(500,500, "Samurai", 30, 10, 3)
-Enemy1 = Fighter(1400,500, "Enemy1", 40, 8, 2, flip=True)
-Enemy2 = Fighter(1700,500, "Enemy1", 40, 8, 2, flip=True)
+Enemy1 = Fighter(1400,500, "Enemy", 40, 8, 2, flip=True)
+Enemy2 = Fighter(1700,500, "Enemy", 40, 8, 2, flip=True)
     
 Enemy_list = []
 Enemy_list.append(Enemy1)
