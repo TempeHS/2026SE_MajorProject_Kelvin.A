@@ -43,7 +43,7 @@ class Fighter():
         self.alive = True
         self.animation_list = []
         self.frame_index = 0
-        self.action = 1 #0: Idle, 1: Attack, 2: Defend 3: Run 4: Hurt, 5: Death
+        self.action = 0 #0: Idle, 1: Attack, 2: Defend 3: Run 4: Hurt, 5: Death
         #Load Idle images
         temp_list = []
         self.update_time = pygame.time.get_ticks()
@@ -52,6 +52,7 @@ class Fighter():
         for i in range(1, frame_count + 1):
             img = pygame.image.load(f"{idle_path}/{i}.png").convert_alpha()
             img = pygame.transform.scale(img, (img.get_width() * 3, img.get_height() * 3))
+            img = img.subsurface(img.get_bounding_rect()).copy()
             if flip:
                 img = pygame.transform.flip(img, True, False)
             temp_list.append(img)
@@ -68,6 +69,7 @@ class Fighter():
             for i in range(1, frame_count + 1):
                 img = pygame.image.load(f"{attack_path}/{i}.png").convert_alpha()
                 img = pygame.transform.scale(img, (img.get_width() * 3, img.get_height() * 3))
+                img = img.subsurface(img.get_bounding_rect()).copy()
                 if flip:
                     img = pygame.transform.flip(img, True, False)
                 temp_list.append(img)
@@ -76,7 +78,7 @@ class Fighter():
         self.animation_list.append(random.choice(self.attack_variants))
         self.image = self.animation_list[self.action][self.frame_index]
         self.rect = self.image.get_rect()
-        self.rect.center = (x, y)
+        self.rect.midbottom = (x, y)
     
     def pick_attack(self):
         # Randomly select an Attack_* variant for the next attack
@@ -84,7 +86,7 @@ class Fighter():
         self.frame_index = 0
 
     def update(self):
-        animation_cooldown = 135
+        animation_cooldown = 140
         #Handle animation
         #update image
         self.image = self.animation_list[self.action][self.frame_index]
@@ -97,13 +99,13 @@ class Fighter():
             self.frame_index = 0
     
     def draw(self):
-        # Always draw centered on the fixed position so frame size differences don't shift the character
-        draw_rect = self.image.get_rect(center=self.rect.center)
+        #Anchor to the bottom of the image
+        draw_rect = self.image.get_rect(midbottom=self.rect.midbottom)
         screen.blit(self.image, draw_rect)
         
-Samurai = Fighter(500,500, "Samurai", 30, 10, 3)
-Enemy1 = Fighter(1400,500, "Enemy", 40, 8, 2, flip=True)
-Enemy2 = Fighter(1700,500, "Enemy", 40, 8, 2, flip=True)
+Samurai = Fighter(500,600, "Samurai", 30, 10, 3)
+Enemy1 = Fighter(1400,600, "Enemy", 40, 8, 2, flip=True)
+Enemy2 = Fighter(1650,590, "Enemy", 40, 8, 2, flip=True)
     
 Enemy_list = []
 Enemy_list.append(Enemy1)
