@@ -43,7 +43,7 @@ class Fighter():
         self.alive = True
         self.animation_list = []
         self.frame_index = 0
-        self.action = 0 #0: Idle, 1: Attack, 2: Defend 3: Run 4: Hurt, 5: Death
+        self.action = 1 #0: Idle, 1: Attack, 2: Defend 3: Run 4: Hurt, 5: Death
         #Load Idle images
         temp_list = []
         self.update_time = pygame.time.get_ticks()
