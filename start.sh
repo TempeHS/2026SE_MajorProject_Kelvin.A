@@ -37,5 +37,9 @@ echo "Starting noVNC..."
 /usr/share/novnc/utils/novnc_proxy --vnc localhost:5900 --listen 6080 &
 sleep 1
 
-# Run the game
-DISPLAY=:99 python main.py
+# Run the game using the venv if available, otherwise fall back to system python
+if [ -f ".venv/bin/python" ]; then
+    DISPLAY=:99 .venv/bin/python main.py
+else
+    DISPLAY=:99 python3 main.py
+fi
