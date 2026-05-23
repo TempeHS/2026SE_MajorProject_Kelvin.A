@@ -1,4 +1,4 @@
-# USE THIS WHEN UPDATING/STARTING GAME TO UPDATE IN VNC: bash start.sh
+# USE THIS WHEN UPDATING/STARTING GAME TO LOAD IN VNC: bash start.sh
 import os
 import random
 import pygame
