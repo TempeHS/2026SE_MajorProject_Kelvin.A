@@ -11,11 +11,18 @@ screen_width = 1920
 screen_height = 1080
 
 screen = pygame.display.set_mode((screen_width, screen_height))
-
 clock = pygame.time.Clock()
 run = True
 dt = 0
 
+# load fonts
+font = pygame.font.SysFont("Times New Roman", 26)
+
+# define colours
+red = (255, 0, 0)
+green = (0, 255, 0)
+
+# load images
 _bg_size = (screen_width, screen_height - bottom_panel)
 backround_img = pygame.transform.scale(
     pygame.image.load(
@@ -31,17 +38,33 @@ panel_img = pygame.transform.scale(
 )
 
 
+# create function for drawing text
+def draw_text(text, font, text_col, x, y):
+    img = font.render(text, True, text_col)
+    screen.blit(img, (x, y))
+
+
 def draw_bg():
     screen.blit(backround_img, (0, 0))
 
 
+# funtion to draw panel
 def draw_panel():
+    # draw panel
     pygame.draw.rect(
         screen,
         (74, 45, 35),
         (0, screen_height - bottom_panel, screen_width, bottom_panel),
     )
     screen.blit(panel_img, (0, screen_height - bottom_panel))
+    # show player stats
+    draw_text(
+        f"{Samurai.name} HP: {Samurai.hp}",
+        font,
+        red,
+        100,
+        screen_height - bottom_panel + 20,
+    )
 
 
 class Fighter:
