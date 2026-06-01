@@ -1,0 +1,11 @@
+# Load user's regular bash config first.
+if [ -f ~/.bashrc ]; then
+  . ~/.bashrc
+fi
+
+# Auto-activate workspace virtual environment if present.
+if [ -f "${PWD}/.venv/bin/activate" ]; then
+  . "${PWD}/.venv/bin/activate"
+elif [ -n "${WORKSPACE_FOLDER}" ] && [ -f "${WORKSPACE_FOLDER}/.venv/bin/activate" ]; then
+  . "${WORKSPACE_FOLDER}/.venv/bin/activate"
+fi
