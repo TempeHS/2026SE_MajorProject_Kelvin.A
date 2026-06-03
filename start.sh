@@ -37,9 +37,11 @@ echo "Starting noVNC..."
 /usr/share/novnc/utils/novnc_proxy --vnc localhost:5900 --listen 6080 &
 sleep 1
 
-# Run the game using the venv if available, otherwise fall back to system python
-if [ -f ".venv/bin/python" ]; then
-    DISPLAY=:99 .venv/bin/python main.py
-else
-    DISPLAY=:99 python3 main.py
+# Create venv if it doesn't exist, then install dependencies and run
+if [ ! -f ".venv/bin/python" ]; then
+    echo "Creating virtual environment..."
+    python3 -m venv .venv
 fi
+echo "Installing dependencies..."
+.venv/bin/pip install -q -r requirements.txt
+DISPLAY=:99 .venv/bin/python main.py
