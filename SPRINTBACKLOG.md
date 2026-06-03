@@ -4,37 +4,38 @@
 
 ## Sprint 1
 
-**Sprint Goal:** Implement core combat loop — player and enemy can attack, health bars display correctly.
+**Sprint Goal:** Implement core stats, health bars display correctly.
 
 ### Committed Items
-| PB ID | User Story |
-|-------|------------|
-| PB-01 | As a player, I want to see my character idle so the game feels alive |
-| PB-02 | As a player, I want to attack enemies so I can win the battle |
-| PB-03 | As a player, I want to see health bars so I know remaining HP |
+
+| PB ID | User Story                        |
+| ----- | --------------------------------- |
+| PB-01 | I want to add idle animations     |
+| PB-02 | Health bars should work correctly |
 
 ### Sprint Plan
+
 1. Load and animate Idle sprites for Samurai and Enemy
-2. Implement `Fighter.attack()` with randomised damage
-3. Implement turn-based `current_fighter` loop
-4. Implement `HealthBar.draw()` with green/red ratio bars
-5. Load panel and background assets; render HUD text
+2. Implement `HealthBar.draw()` with green/red ratio bars
+3. Load panel and background assets; render HUD text
 
 ### Unit Test Summary
 
-| Test ID | Description | Expected Result | Pass/Fail |
-|---------|-------------|-----------------|-----------|
-| T-01 | Fighter takes damage | `hp` decreases by `strength ± 5` | Pass |
-| T-02 | Health bar renders green segment | Green rect width = `200 * (hp/max_hp)` | Pass |
-| T-03 | Idle animation loops | `frame_index` resets to 0 at end of list | Pass |
+| Test ID | Description                      | Expected Result                          | Pass/Fail |
+| ------- | -------------------------------- | ---------------------------------------- | --------- |
+| T-01    | Health bar renders green segment | Green rect width = `200 * (hp/max_hp)`   | Pass      |
+| T-02    | Idle animation loops             | `frame_index` resets to 0 at end of list | Pass      |
 
 ### Sprint Review
-What was completed, what was not, and any scope changes. Reference PB IDs.
+
+PB-01 was a success and idle animations were implemented, attack animations were also added to test action logic aswell.
+PB-02 Works correctly as it should, but logic it currently untested as there is no attack function yet
 
 ### Sprint Retrospective
-- **What went well:**
-- **What didn't go well:**
-- **What to improve next sprint:**
+
+- **What went well:**Idle animations are simple repeating loops, health bar is a coloured rectangle with scalable values
+- **What didn't go well:**Couldn't test health bar reactivity due to missing logic
+- **What to improve next sprint:**Implement Attack logic
 
 ---
 
