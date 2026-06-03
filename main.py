@@ -15,8 +15,9 @@ clock = pygame.time.Clock()
 run = True
 dt = 0
 
+
 # load fonts
-font = pygame.font.SysFont("Times New Roman", 26)
+font = pygame.font.SysFont("Times New Roman", 40)
 
 # define colours
 red = (255, 0, 0)
@@ -62,9 +63,19 @@ def draw_panel():
         f"{Samurai.name} HP: {Samurai.hp}",
         font,
         red,
-        100,
-        screen_height - bottom_panel + 20,
+        80,
+        screen_height - bottom_panel + 30,
     )
+    # Go through ememy list and show stats
+    for count, i in enumerate(Enemy_list):
+        # show enemy stats
+        draw_text(
+            f"{i.name} HP: {i.hp}",
+            font,
+            red,
+            1580,
+            (screen_height - bottom_panel + 30) + count * 110,
+        )
 
 
 class Fighter:
@@ -151,14 +162,37 @@ class Fighter:
         screen.blit(self.image, draw_rect)
 
 
+class HealthBar:
+    def __init__(self, x, y, hp, max_hp):
+        self.x = x
+        self.y = y
+        self.hp = hp
+        self.max_hp = max_hp
+
+    def draw(self, hp):
+        ratio = hp / self.max_hp
+        pygame.draw.rect(screen, red, (self.x, self.y, 200, 20))
+        pygame.draw.rect(screen, green, (self.x, self.y, 200 * ratio, 20))
+
+
 # Fighter Locations and stats
-Samurai = Fighter(500, 600, "Samurai", 30, 10, 3)
-Enemy1 = Fighter(1400, 600, "Enemy", 40, 8, 2, flip=True)
-Enemy2 = Fighter(1650, 590, "Enemy", 40, 8, 2, flip=True)
+Samurai = Fighter(500, 600, "Samurai", 50, 10, 3)
+Enemy1 = Fighter(1400, 600, "Enemy", 70, 8, 2, flip=True)
+Enemy2 = Fighter(1650, 590, "Enemy", 60, 8, 2, flip=True)
 
 Enemy_list = []
 Enemy_list.append(Enemy1)
 Enemy_list.append(Enemy2)
+
+Samurai_health_bar = HealthBar(
+    80, screen_height - bottom_panel + 80, Samurai.hp, Samurai.max_hp
+)
+Enemy1_health_bar = HealthBar(
+    1580, screen_height - bottom_panel + 80, Enemy1.hp, Enemy1.max_hp
+)
+Enemy2_health_bar = HealthBar(
+    1580, screen_height - bottom_panel + 190, Enemy2.hp, Enemy2.max_hp
+)
 
 while run:
 
@@ -169,6 +203,9 @@ while run:
 
     # draw panel
     draw_panel()
+    Samurai_health_bar.draw(Samurai.hp)
+    Enemy1_health_bar.draw(Enemy1.hp)
+    Enemy2_health_bar.draw(Enemy2.hp)
 
     # draw fighters
     Samurai.update()
