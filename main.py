@@ -15,6 +15,7 @@ clock = pygame.time.Clock()
 run = True
 dt = 0
 
+
 # load fonts
 font = pygame.font.SysFont("Times New Roman", 40)
 
@@ -169,13 +170,15 @@ class HealthBar:
         self.max_hp = max_hp
 
     def draw(self, hp):
+        ratio = hp / self.max_hp
         pygame.draw.rect(screen, red, (self.x, self.y, 200, 20))
+        pygame.draw.rect(screen, green, (self.x, self.y, 200 * ratio, 20))
 
 
 # Fighter Locations and stats
-Samurai = Fighter(500, 600, "Samurai", 30, 10, 3)
-Enemy1 = Fighter(1400, 600, "Enemy", 40, 8, 2, flip=True)
-Enemy2 = Fighter(1650, 590, "Enemy", 40, 8, 2, flip=True)
+Samurai = Fighter(500, 600, "Samurai", 50, 10, 3)
+Enemy1 = Fighter(1400, 600, "Enemy", 70, 8, 2, flip=True)
+Enemy2 = Fighter(1650, 590, "Enemy", 60, 8, 2, flip=True)
 
 Enemy_list = []
 Enemy_list.append(Enemy1)
