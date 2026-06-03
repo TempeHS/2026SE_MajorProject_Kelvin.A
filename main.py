@@ -41,7 +41,7 @@ panel_img = pygame.transform.scale(
 
 # create function for drawing text
 def draw_text(text, font, text_col, x, y):
-    img = font.render(text, True, text_col)
+    img = font.render(text, False, text_col)
     screen.blit(img, (x, y))
 
 
