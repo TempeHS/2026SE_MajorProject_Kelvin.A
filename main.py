@@ -6,20 +6,24 @@ import pygame
 # pygame setup
 pygame.init()
 
+# Define constants
 bottom_panel = 360
 screen_width = 1920
 screen_height = 1080
-
 screen = pygame.display.set_mode((screen_width, screen_height))
 clock = pygame.time.Clock()
 run = True
 dt = 0
+target_fps = 144
 
 # define game variables
 current_fighter = 1
 total_fighters = 3
 action_cooldown = 0
 action_wait_time = 90
+attack = False
+potion = False
+clicked = False
 
 # load fonts
 font = pygame.font.SysFont("Times New Roman", 40)
@@ -36,12 +40,23 @@ backround_img = pygame.transform.scale(
     ).convert(),
     _bg_size,
 )
+# Load Panel
 panel_img = pygame.transform.scale(
     pygame.image.load(
         "/workspaces/2026SE_MajorProject_Kelvin.A/assets/icons/panel.png"
     ).convert_alpha(),
     (screen_width, bottom_panel),
 )
+# Load Katana
+Katana_img = pygame.image.load(
+    "/workspaces/2026SE_MajorProject_Kelvin.A/assets/icons/Katana.png"
+).convert_alpha()
+Katana_img = pygame.transform.scale(
+    Katana_img,
+    (max(1, Katana_img.get_width() // 2), max(1, Katana_img.get_height() // 2)),
+)
+# Anchor mouse position to blade tip
+katana_hotspot = (8, 8)
 
 
 # create function for drawing text
@@ -50,6 +65,7 @@ def draw_text(text, font, text_col, x, y):
     screen.blit(img, (x, y))
 
 
+# function to draw a background
 def draw_bg():
     screen.blit(backround_img, (0, 0))
 
@@ -83,6 +99,7 @@ def draw_panel():
         )
 
 
+# Class for all fighters in the game (player and enemies)
 class Fighter:
     def __init__(self, x, y, name, max_hp, strength, potions, flip=False):
         self.name = name
@@ -171,6 +188,10 @@ class Fighter:
         rand = random.randint(-3, 5)
         damage = self.strength + rand
         target.hp -= damage
+        # if target has died
+        if target.hp < 1:
+            target.hp = 0
+            target.alive = False
         # set variables to attack animation
         self.action = 1
         self.frame_index = 0
@@ -196,9 +217,9 @@ class HealthBar:
 
 
 # Fighter Locations and stats
-Samurai = Fighter(500, 600, "Samurai", 50, 10, 3)
-Enemy1 = Fighter(1400, 600, "Enemy", 70, 5, 2, flip=True)
-Enemy2 = Fighter(1650, 590, "Enemy", 60, 5, 2, flip=True)
+Samurai = Fighter(500, 600, "Samurai", 100, 10, 3)
+Enemy1 = Fighter(1400, 600, "Enemy", 40, 5, 2, flip=True)
+Enemy2 = Fighter(1650, 590, "Enemy", 40, 5, 2, flip=True)
 
 Enemy_list = []
 Enemy_list.append(Enemy1)
@@ -215,6 +236,13 @@ Enemy2_health_bar = HealthBar(
 )
 
 while run:
+
+    clicked = False
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            clicked = True
 
     screen.fill((0, 0, 0))
 
@@ -234,14 +262,30 @@ while run:
         enemy.update()
         enemy.draw()
 
+    # control player actions
+    # reset action var
+    attack = False
+    potion = False
+    target = None
+
+    pos = pygame.mouse.get_pos()
+
+    for count, enemy in enumerate(Enemy_list):
+        hover_rect = enemy.image.get_rect(midbottom=enemy.rect.midbottom)
+        if enemy.alive and hover_rect.collidepoint(pos):
+            if clicked == True:
+                attack = True
+                target = Enemy_list[count]
+            break
+
     # player action
-    if Samurai.alive == True:
-        if current_fighter == 1:
-            action_cooldown += 1
-            if action_cooldown >= action_wait_time:
-                # look for player action
-                # Attack
-                Samurai.attack(Enemy1)
+    if Samurai.alive == True and current_fighter == 1:
+        action_cooldown += 1
+        if action_cooldown >= action_wait_time:
+            # look for player action
+            # Attack
+            if attack == True and target is not None:
+                Samurai.attack(target)
                 current_fighter += 1
                 action_cooldown = 0
 
@@ -263,11 +307,23 @@ while run:
     if current_fighter > total_fighters:
         current_fighter = 1
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
+    # Draw cursor replacement as the final render step for minimum latency.
+    live_pos = pygame.mouse.get_pos()
+    hovering_enemy = False
+    for enemy in Enemy_list:
+        hover_rect = enemy.image.get_rect(midbottom=enemy.rect.midbottom)
+        if enemy.alive and hover_rect.collidepoint(live_pos):
+            hovering_enemy = True
+            break
+
+    if hovering_enemy:
+        pygame.mouse.set_visible(False)
+        katana_pos = (live_pos[0] - katana_hotspot[0], live_pos[1] - katana_hotspot[1])
+        screen.blit(Katana_img, katana_pos)
+    else:
+        pygame.mouse.set_visible(True)
 
     pygame.display.flip()
-    dt = clock.tick(60) / 1000
+    dt = clock.tick_busy_loop(target_fps) / 1000
 
 pygame.quit()
