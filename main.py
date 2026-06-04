@@ -159,13 +159,22 @@ class Fighter:
             self.frame_index += 1
         # Reset to start if animation has reached the end
         if self.frame_index >= len(self.animation_list[self.action]):
-            self.frame_index = 0
+            self.idle()
+
+    def idle(self):
+        self.action = 0
+        self.frame_index = 0
+        self.update_time = pygame.time.get_ticks()
 
     def attack(self, target):
         # deal damage
-        rand = random.randint(-5, 5)
+        rand = random.randint(-3, 5)
         damage = self.strength + rand
         target.hp -= damage
+        # set variables to attack animation
+        self.action = 1
+        self.frame_index = 0
+        self.update_time = pygame.time.get_ticks()
 
     def draw(self):
         # Anchor to the bottom of the image
@@ -188,8 +197,8 @@ class HealthBar:
 
 # Fighter Locations and stats
 Samurai = Fighter(500, 600, "Samurai", 50, 10, 3)
-Enemy1 = Fighter(1400, 600, "Enemy", 70, 8, 2, flip=True)
-Enemy2 = Fighter(1650, 590, "Enemy", 60, 8, 2, flip=True)
+Enemy1 = Fighter(1400, 600, "Enemy", 70, 5, 2, flip=True)
+Enemy2 = Fighter(1650, 590, "Enemy", 60, 5, 2, flip=True)
 
 Enemy_list = []
 Enemy_list.append(Enemy1)
@@ -235,6 +244,24 @@ while run:
                 Samurai.attack(Enemy1)
                 current_fighter += 1
                 action_cooldown = 0
+
+    # enemy action
+    for count, enemy in enumerate(Enemy_list):
+        if current_fighter == 2 + count:
+            if enemy.alive == True:
+                action_cooldown += 1
+                if action_cooldown >= action_wait_time:
+                    # Attack player
+                    enemy.pick_attack()
+                    enemy.attack(Samurai)
+                    current_fighter += 1
+                    action_cooldown = 0
+            else:
+                current_fighter += 1
+
+    # reset turns if all have gone
+    if current_fighter > total_fighters:
+        current_fighter = 1
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
