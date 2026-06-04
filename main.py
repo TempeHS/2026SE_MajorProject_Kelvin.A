@@ -15,6 +15,11 @@ clock = pygame.time.Clock()
 run = True
 dt = 0
 
+# define game variables
+current_fighter = 1
+total_fighters = 3
+action_cooldown = 0
+action_wait_time = 90
 
 # load fonts
 font = pygame.font.SysFont("Times New Roman", 40)
@@ -89,7 +94,7 @@ class Fighter:
         self.alive = True
         self.animation_list = []
         self.frame_index = 0
-        self.action = 1  # 0: Idle, 1: Attack, 2: Defend 3: Run 4: Hurt, 5: Death
+        self.action = 0  # 0: Idle, 1: Attack, 2: Defend 3: Run 4: Hurt, 5: Death
         # Load Idle images
         temp_list = []
         self.update_time = pygame.time.get_ticks()
@@ -156,6 +161,12 @@ class Fighter:
         if self.frame_index >= len(self.animation_list[self.action]):
             self.frame_index = 0
 
+    def attack(self, target):
+        # deal damage
+        rand = random.randint(-5, 5)
+        damage = self.strength + rand
+        target.hp -= damage
+
     def draw(self):
         # Anchor to the bottom of the image
         draw_rect = self.image.get_rect(midbottom=self.rect.midbottom)
@@ -213,6 +224,17 @@ while run:
     for enemy in Enemy_list:
         enemy.update()
         enemy.draw()
+
+    # player action
+    if Samurai.alive == True:
+        if current_fighter == 1:
+            action_cooldown += 1
+            if action_cooldown >= action_wait_time:
+                # look for player action
+                # Attack
+                Samurai.attack(Enemy1)
+                current_fighter += 1
+                action_cooldown = 0
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
