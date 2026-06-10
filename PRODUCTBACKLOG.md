@@ -8,17 +8,24 @@ The combat of a game which is alike a RPG game, inspired by final fantasy turn-b
 
 ## Backlog
 
-| ID    | User Story                        | Priority  | Acceptance Criteria                          | Status      |
-| ----- | --------------------------------- | --------- | -------------------------------------------- | ----------- |
-| PB-01 | I want to add idle animations     | Medium    | Idle animation loops continuously on startup | Done        |
-| PB-02 | Health bars should work correctly | High Prio | Green/red bar scales with current HP ratio   | In Progress |
-| PB-03 | ...                               | ...       | ...                                          | ...         |
+| ID    | User Story                                                                                               | Priority | Acceptance Criteria                                                                                    | Status |
+| ----- | -------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------ | ------ |
+| PB-01 | I want to add idle animations                                                                            | Medium   | Idle animation loops continuously on startup                                                           | Done   |
+| PB-02 | Health bars should work correctly                                                                        | High     | Green/red bar scales with current HP ratio                                                             | Done   |
+| PB-03 | Health bars should react accurately to damage being dealt                                                | High     | Damage is correctly calculated from health, and health bar responds by showing the remainder of health | Done   |
+| PB-04 | When Attacking an enemy or an enemy attacking, attack animations should play randomly from the 3 options | Low      | When attacking a random animation should play instead of one                                           | Done   |
+| PB-05 | Attacking an enemy is based on the cursor (click to attack an enemy)                                     | Medium   | Clicking an enemy attacks on players turn                                                              | Done   |
+| PB-06 | I want to ensure attacking works                                                                         | High     | Whole attacking system works                                                                           | Done   |
 
 ---
 
 ## Changelog
 
-| Date       | Change                        | Reason                                    |
-| ---------- | ----------------------------- | ----------------------------------------- |
-| 2026-06-03 | Added PB-01                   | Initial backlog from Phase 1 requirements |
-| 2026-06-03 | Raised PB-02 to High priority | Core combat mechanic needed in Sprint 1   |
+| Date       | Change                        | Reason                                       |
+| ---------- | ----------------------------- | -------------------------------------------- |
+| 03=06=2026 | Added PB-01                   | Initial backlog from Phase 1 requirements    |
+| 03-06-2026 | Raised PB-02 to High priority | Core combat mechanic needed in Sprint 1      |
+| 10-06-2026 | Add PB-03                     | Core mechanic for health                     |
+| 10-06-2026 | Add PB-04                     | Quality of life feature                      |
+| 10-06-2026 | Add PB-05                     | Core mechanic for attacking                  |
+| 10-06-2026 | Add PB-06                     | Core to ensure whole system works as a whole |
