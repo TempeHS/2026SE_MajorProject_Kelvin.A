@@ -92,4 +92,41 @@ PB-04 Cursor collision works through pygame library, clicking is also done throu
 
 ## Sprint 3
 
-...
+**Sprint Goal:** Add in potions feature, player and enemies should have potions
+
+### Committed Items
+
+| PB ID | User Story                        |
+| ----- | --------------------------------- |
+| PB-01 | Potions would make the game better     |
+| PB-02 | Enemies shoud also have the ability to heal |
+| PB-03 | Damage done should also be visualised |
+
+
+### Sprint Plan
+
+1. Import potion sprite and button library
+2. Create a button with the potion sprite 
+3. Implement the health boost feature into when clicking the button
+4. Set up function to display damage text
+ 
+
+### Unit Test Summary
+
+| Test ID | Description                      | Expected Result                          | Pass/Fail |
+| ------- | -------------------------------- | ---------------------------------------- | --------- |
+| T-01    | Health bar renders green segment | Green rect width = `200 * (hp/max_hp)`   | Pass      |
+| T-02    | Idle animation loops             | `frame_index` resets to 0 at end of list | Pass      |
+
+### Sprint Review
+
+PB-01 was a success and idle animations were implemented, attack animations were also added to test action logic aswell.
+PB-02 Works correctly as it should, but logic it currently untested as there is no attack function yet
+
+### Sprint Retrospective
+
+- **What went well:** Idle animations are simple repeating loops, health bar is a coloured rectangle with scalable values
+- **What didn't go well:** Couldn't test health bar reactivity due to missing logic
+- **What to improve next sprint:** Implement Attack logic
+
+---
