@@ -273,6 +273,10 @@ class Fighter:
         if self.frame_index >= len(self.animation_list[self.action]):
             if self.action == 3:
                 self.frame_index = len(self.animation_list[self.action]) - 1
+            elif self.is_defending:
+                # while defending, loop defend animation
+                self.action = 4
+                self.frame_index = len(self.animation_list[4]) - 1
             else:
                 self.idle()
 
@@ -383,9 +387,6 @@ class Fighter:
         # default no defense active
         if self.is_defending == False:
             return incoming_damage, "Hit", 0
-
-        # defense gone after attack
-        self.is_defending = False
 
         roll = random.random()
 
@@ -569,6 +570,9 @@ while run:
             game_over = -1
         # player action
         if Samurai.alive == True and current_fighter == 1:
+            if Samurai.is_defending and Samurai.action == 4:
+                Samurai.is_defending = False
+                Samurai.idle()
             action_cooldown += 1
             if action_cooldown >= action_wait_time:
                 # look for player action
