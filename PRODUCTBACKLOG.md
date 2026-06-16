@@ -16,6 +16,7 @@ The combat of a game which is alike a RPG game, inspired by final fantasy turn-b
 | PB-04 | When Attacking an enemy or an enemy attacking, attack animations should play randomly from the 3 options | Low      | When attacking a random animation should play instead of one                                           | Done   |
 | PB-05 | Attacking an enemy is based on the cursor (click to attack an enemy)                                     | Medium   | Clicking an enemy attacks on players turn                                                              | Done   |
 | PB-06 | I want to ensure attacking works                                                                         | High     | Whole attacking system works                                                                           | Done   |
+| PB‑07 | I want damage and healing text to appear when actions occur                                              | Medium   | DamageText class exists, floats upward, deletes after lifespan, and triggers on damage/heal events     | Done   |
 
 ---
 
@@ -29,3 +30,4 @@ The combat of a game which is alike a RPG game, inspired by final fantasy turn-b
 | 10-06-2026 | Add PB-04                     | Quality of life feature                      |
 | 10-06-2026 | Add PB-05                     | Core mechanic for attacking                  |
 | 10-06-2026 | Add PB-06                     | Core to ensure whole system works as a whole |
+| 16-06-2026 | Add PB-07                     | Visual combat feedback                       |
