@@ -35,6 +35,8 @@ font = pygame.font.SysFont("Times New Roman", 40)
 # define colours
 red = (255, 0, 0)
 green = (0, 255, 0)
+yellow = (255, 255, 0)
+white = (255, 255, 255)
 
 # load images
 _bg_size = (screen_width, screen_height - bottom_panel)
@@ -57,7 +59,6 @@ panel_img = pygame.transform.scale(
 Potion_img = pygame.image.load(
     "/workspaces/2026SE_MajorProject_Kelvin.A/assets/icons/Potion.png"
 ).convert_alpha()
-
 # Load Katana
 Katana_img = pygame.image.load(
     "/workspaces/2026SE_MajorProject_Kelvin.A/assets/icons/Katana.png"
@@ -66,6 +67,10 @@ Katana_img = pygame.transform.scale(
     Katana_img,
     (max(1, Katana_img.get_width() // 2), max(1, Katana_img.get_height() // 2)),
 )
+# load Restart button
+Restart_img = pygame.image.load(
+    "/workspaces/2026SE_MajorProject_Kelvin.A/assets/ui/restart_button.png"
+).convert_alpha()
 
 # Anchor mouse position to blade tip
 katana_hotspot = (8, 8)
@@ -232,20 +237,45 @@ class Fighter:
         self.update_time = pygame.time.get_ticks()
 
     def attack(self, target):
-        # deal damage
-        rand = random.randint(-3, 5)
-        damage = self.strength + rand
+        # Base damage
+        rand = random.randint(-5, 5)
+        base_damage = self.strength + rand
+
+        # Global cri chance
+        crit_chance = 0.15  # 15%
+        is_critical = random.random() < crit_chance
+
+        # Calculate damage x crit
+        if is_critical:
+            damage = int(base_damage * 1.5)
+        else:
+            damage = base_damage
+
         target.hp -= damage
-        # chyyeck if target has died if not play hurt animation
         if target.hp < 1:
             target.hp = 0
             target.alive = False
             target.death()
         else:
             target.hurt()
-        damage_text = DamageText(target.rect.centerx, target.rect.y, str(damage), red)
+
+        # show damage text / colour
+        if is_critical:
+            damage_colour = yellow
+        else:
+            damage_colour = red
+
+        # Sylise crit marker
+        if is_critical:
+            damage_display = f"{damage}!"
+        else:
+            damage_display = str(damage)
+
+        damage_text = DamageText(
+            target.rect.centerx, target.rect.y, damage_display, damage_colour
+        )
         damage_text_group.add(damage_text)
-        # set variables to attack animation
+
         self.action = 1
         self.frame_index = 0
         self.update_time = pygame.time.get_ticks()
@@ -266,6 +296,14 @@ class Fighter:
         # Anchor to the bottom of the image
         draw_rect = self.image.get_rect(midbottom=self.rect.midbottom)
         screen.blit(self.image, draw_rect)
+
+    def reset(self):
+        self.alive = True
+        self.hp = self.max_hp
+        self.potions = self.start_potions
+        self.frame_index = 0
+        self.action = 0
+        self.update_time = pygame.time.get_ticks()
 
 
 # Health bar class to show health of player and enemies
@@ -303,9 +341,9 @@ damage_text_group = pygame.sprite.Group()
 
 
 # Fighter Locations and stats
-Samurai = Fighter(500, 600, "Samurai", 100, 10, 3)
-Enemy1 = Fighter(1400, 600, "Enemy", 40, 5, 1, flip=True)
-Enemy2 = Fighter(1650, 590, "Enemy", 40, 200, 1, flip=True)
+Samurai = Fighter(500, 600, "Samurai", 100, 14, 3)
+Enemy1 = Fighter(1400, 600, "Enemy", 45, 8, 1, flip=True)
+Enemy2 = Fighter(1650, 590, "Enemy", 45, 8, 1, flip=True)
 
 Enemy_list = []
 Enemy_list.append(Enemy1)
@@ -322,9 +360,16 @@ Enemy2_health_bar = HealthBar(
 )
 
 # create buttons
-
+# Health potion
 health_potion_button = button.Button(
     80, screen_height - bottom_panel + 150, Potion_img, 0.3
+)
+# Restart button below Game Over text
+restart_button = button.Button(
+    screen_width // 2 - Restart_img.get_width() // 2,
+    screen_height // 2 + 50,
+    Restart_img,
+    1,
 )
 
 while run:
@@ -447,13 +492,38 @@ while run:
             current_fighter = 1
     else:
         if game_over == -1:
-            # create black screen with Game Over Text in the middle of the screen
             draw.rect(screen, (0, 0, 0), (0, 0, screen_width, screen_height))
-            text_surface = font.render("SAMURAI SLAIN", False, red)
+            text_surface = font.render("SAMURAI SLAIN", False, yellow)
             text_rect = text_surface.get_rect(
                 center=(screen_width // 2, screen_height // 2)
             )
             screen.blit(text_surface, text_rect)
+
+        # Draw button
+        if restart_button.draw(screen):
+            Samurai.reset()
+            for enemy in Enemy_list:
+                enemy.reset()
+            current_fighter = 1
+            action_cooldown = 0
+            game_over = 0
+
+        # Draw restart text
+
+        button_x = screen_width // 2 - Restart_img.get_width() // 2
+        button_y = screen_height // 2 + 50
+        label = font.render("RESTART", True, red)
+        # half text size
+        label = pygame.transform.scale(
+            label, (label.get_width() // 1.5, label.get_height() // 1.5)
+        )
+        label_rect = label.get_rect(
+            center=(
+                button_x + Restart_img.get_width() // 2,
+                button_y + Restart_img.get_height() // 2,
+            )
+        )
+        screen.blit(label, label_rect)
 
     # Draw cursor replacement as the final render step for minimum latency.
     live_pos = pygame.mouse.get_pos()
