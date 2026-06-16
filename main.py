@@ -25,7 +25,7 @@ action_cooldown = 0
 action_wait_time = 90
 attack = False
 potion = False
-potion_effect = 15 + random.randint(-5, 5)
+potion_effect = 12 + random.randint(-3, 3)
 clicked = False
 game_over = 0  # 0 = no winner, -1 = enemy win
 
@@ -238,7 +238,7 @@ class Fighter:
 
     def attack(self, target):
         # Base damage
-        rand = random.randint(-5, 5)
+        rand = random.randint(-3, 3)
         base_damage = self.strength + rand
 
         # Global cri chance
