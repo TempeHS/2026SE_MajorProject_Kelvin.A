@@ -144,6 +144,7 @@ class Fighter:
         self.start_potions = potions
         self.potions = potions
         self.alive = True
+        self.is_defending = False
         self.animation_list = []
         self.frame_index = 0
         self.action = 0  # 0: Idle, 1: Attack, 2: Hurt, 3: Run, 4: Death
@@ -317,11 +318,46 @@ class Fighter:
 
     def reset(self):
         self.alive = True
+        self.is_defending = False
         self.hp = self.max_hp
         self.potions = self.start_potions
         self.frame_index = 0
         self.action = 0
         self.update_time = pygame.time.get_ticks()
+
+    # set defending state and return to idle animation
+    def guard(self):
+        self.is_defending = True
+        self.idle()
+
+    def guard_damage(self, incoming_damage, attacker):
+        # default no defense active
+        if self.is_defending == False:
+            return incoming_damage, "Hit", 0
+
+        # defense gone after attack
+        self.is_defending = False
+
+        roll = random.random()
+
+        # Counter attack chance
+        if roll < counter_chance:
+            counter_damage = max(1, int(self.strength * 0.6) + random.randint(-2, 2))
+            attacker.hp -= counter_damage
+            if attacker.hp < 1:
+                attacker.hp = 0
+                attacker.alive = False
+                attacker.death()
+            else:
+                attacker.hurt()
+            return 0, "Countered", counter_damage
+
+        if roll < counter_chance + full_block_chance:
+            return 0, "Blocked", 0
+
+        taken_ratio = random.uniform(partial_block_min, partial_block_max)
+        reduced = max(1, int(incoming_damage * taken_ratio))
+        return reduced, "Partial", 0
 
 
 # Health bar class to show health of player and enemies
@@ -389,6 +425,20 @@ restart_button = button.Button(
     Restart_img,
     1,
 )
+
+
+# change mode button
+def draw_mode_button():
+    if player_mode == "ATTACK":
+        fill = (170, 50, 50)
+    else:
+        fill = (50, 120, 170)
+
+    pygame.draw.rect(screen, fill, mode_button_rect, border_radius=12)
+    pygame.draw.rect(screen, white, mode_button_rect, 3, border_radius=12)
+    label = f"MODE: {player_mode}"
+    draw_text(label, font, white, mode_button_rect.x + 15, mode_button_rect.y + 18)
+
 
 while run:
 
