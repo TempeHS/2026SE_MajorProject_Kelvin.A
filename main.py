@@ -2,6 +2,7 @@
 import os
 import random
 import pygame
+from pygame import draw
 from utilities import button
 
 # pygame setup
@@ -26,6 +27,7 @@ attack = False
 potion = False
 potion_effect = 15 + random.randint(-5, 5)
 clicked = False
+game_over = 0  # 0 = no winner, -1 = enemy win
 
 # load fonts
 font = pygame.font.SysFont("Times New Roman", 40)
@@ -303,7 +305,7 @@ damage_text_group = pygame.sprite.Group()
 # Fighter Locations and stats
 Samurai = Fighter(500, 600, "Samurai", 100, 10, 3)
 Enemy1 = Fighter(1400, 600, "Enemy", 40, 5, 1, flip=True)
-Enemy2 = Fighter(1650, 590, "Enemy", 40, 5, 1, flip=True)
+Enemy2 = Fighter(1650, 590, "Enemy", 40, 200, 1, flip=True)
 
 Enemy_list = []
 Enemy_list.append(Enemy1)
@@ -377,65 +379,81 @@ while run:
     # no. of potions shown in panel
     draw_text(str(Samurai.potions), font, red, 190, screen_height - bottom_panel + 150)
 
-    # player action
-    if Samurai.alive == True and current_fighter == 1:
-        action_cooldown += 1
-        if action_cooldown >= action_wait_time:
-            # look for player action
-            # Attack
-            if attack == True and target is not None:
-                Samurai.attack(target)
-                current_fighter += 1
-                action_cooldown = 0
-            # use Potion
-            if potion == True and Samurai.potions > 0:
-                # heal the player
-                if Samurai.hp + potion_effect < Samurai.max_hp:
-                    heal_amount = potion_effect
-                else:
-                    heal_amount = Samurai.max_hp - Samurai.hp
-                Samurai.hp += heal_amount
-                Samurai.potions -= 1
-                damage_text = DamageText(
-                    Samurai.rect.centerx, Samurai.rect.y, str(heal_amount), green
-                )
-                damage_text_group.add(damage_text)
-                current_fighter += 1
-                action_cooldown = 0
-
-    # enemy action
-    for count, enemy in enumerate(Enemy_list):
-        if current_fighter == 2 + count:
-            if enemy.alive == True:
-                action_cooldown += 1
-                if action_cooldown >= action_wait_time:
-                    # Check if health is low enough to heal
-                    if enemy.hp / enemy.max_hp < 0.5 and enemy.potions > 0:
-                        if enemy.hp + potion_effect < enemy.max_hp:
-                            heal_amount = potion_effect
-                        else:
-                            heal_amount = enemy.max_hp - enemy.hp
-                        enemy.hp += heal_amount
-                        enemy.potions -= 1
-                        damage_text = DamageText(
-                            enemy.rect.centerx, enemy.rect.y, str(heal_amount), green
-                        )
-                        damage_text_group.add(damage_text)
-                        current_fighter += 1
-                        action_cooldown = 0
-                        continue  # Skip attack if potion is used
-                    # Attack player
+    if game_over == 0:
+        # check if player has died
+        if Samurai.alive == False:
+            game_over = -1
+        # player action
+        if Samurai.alive == True and current_fighter == 1:
+            action_cooldown += 1
+            if action_cooldown >= action_wait_time:
+                # look for player action
+                # Attack
+                if attack == True and target is not None:
+                    Samurai.attack(target)
+                    current_fighter += 1
+                    action_cooldown = 0
+                # use Potion
+                if potion == True and Samurai.potions > 0:
+                    # heal the player
+                    if Samurai.hp + potion_effect < Samurai.max_hp:
+                        heal_amount = potion_effect
                     else:
-                        enemy.pick_attack()
-                        enemy.attack(Samurai)
-                        current_fighter += 1
-                        action_cooldown = 0
-            else:
-                current_fighter += 1
+                        heal_amount = Samurai.max_hp - Samurai.hp
+                    Samurai.hp += heal_amount
+                    Samurai.potions -= 1
+                    damage_text = DamageText(
+                        Samurai.rect.centerx, Samurai.rect.y, str(heal_amount), green
+                    )
+                    damage_text_group.add(damage_text)
+                    current_fighter += 1
+                    action_cooldown = 0
 
-    # reset turns if all have gone
-    if current_fighter > total_fighters:
-        current_fighter = 1
+        # enemy action
+        for count, enemy in enumerate(Enemy_list):
+            if current_fighter == 2 + count:
+                if enemy.alive == True:
+                    action_cooldown += 1
+                    if action_cooldown >= action_wait_time:
+                        # Check if health is low enough to heal
+                        if enemy.hp / enemy.max_hp < 0.5 and enemy.potions > 0:
+                            if enemy.hp + potion_effect < enemy.max_hp:
+                                heal_amount = potion_effect
+                            else:
+                                heal_amount = enemy.max_hp - enemy.hp
+                            enemy.hp += heal_amount
+                            enemy.potions -= 1
+                            damage_text = DamageText(
+                                enemy.rect.centerx,
+                                enemy.rect.y,
+                                str(heal_amount),
+                                green,
+                            )
+                            damage_text_group.add(damage_text)
+                            current_fighter += 1
+                            action_cooldown = 0
+                            continue  # Skip attack if potion is used
+                        # Attack player
+                        else:
+                            enemy.pick_attack()
+                            enemy.attack(Samurai)
+                            current_fighter += 1
+                            action_cooldown = 0
+                else:
+                    current_fighter += 1
+
+        # reset turns if all have gone
+        if current_fighter > total_fighters:
+            current_fighter = 1
+    else:
+        if game_over == -1:
+            # create black screen with Game Over Text in the middle of the screen
+            draw.rect(screen, (0, 0, 0), (0, 0, screen_width, screen_height))
+            text_surface = font.render("SAMURAI SLAIN", False, red)
+            text_rect = text_surface.get_rect(
+                center=(screen_width // 2, screen_height // 2)
+            )
+            screen.blit(text_surface, text_rect)
 
     # Draw cursor replacement as the final render step for minimum latency.
     live_pos = pygame.mouse.get_pos()
