@@ -185,6 +185,21 @@ class Fighter:
         temp_list.append(img)
         self.animation_list.append(temp_list)
 
+        # load death animation
+        temp_list = []
+        death_path = f"{base_path}/Death"
+        frame_count = len([f for f in os.listdir(death_path) if f.endswith(".png")])
+        for i in range(1, frame_count + 1):
+            img = pygame.image.load(f"{death_path}/{i}.png").convert_alpha()
+            img = pygame.transform.scale(
+                img, (img.get_width() * 3, img.get_height() * 3)
+            )
+            img = img.subsurface(img.get_bounding_rect()).copy()
+            if flip:
+                img = pygame.transform.flip(img, True, False)
+            temp_list.append(img)
+        self.animation_list.append(temp_list)
+
     def pick_attack(self):
         # Randomly select an Attack_* variant for the next attack
         self.animation_list[1] = random.choice(self.attack_variants)
@@ -218,7 +233,7 @@ class Fighter:
         # if target has died
         if target.hp < 1:
             target.hp = 0
-            target.alive = False
+            target.alive = False and target.death()
         damage_text = DamageText(target.rect.centerx, target.rect.y, str(damage), red)
         damage_text_group.add(damage_text)
         # set variables to attack animation
@@ -229,6 +244,12 @@ class Fighter:
     def hurt(self):
         # set hurt method
         self.action = 2
+        self.frame_index = 0
+        self.update_time = pygame.time.get_ticks()
+
+    def death(self):
+        # set death method
+        self.action = 3
         self.frame_index = 0
         self.update_time = pygame.time.get_ticks()
 
