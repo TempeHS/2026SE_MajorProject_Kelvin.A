@@ -21,7 +21,7 @@ target_fps = 144
 # define game variables
 player_mode = 0  # default to attack mode
 
-enemy_defence_chance = 0.14  # 14% chance for enemy to defend
+enemy_defence_chance = 0.33  # 33% chance for enemy to defend
 
 # d efence chances
 partial_block_min = 0.45
@@ -270,13 +270,28 @@ class Fighter:
             self.update_time = pygame.time.get_ticks()
             self.frame_index += 1
         # Reset to start if animation has reached the end
+        # Reset to start if animation has reached the end
         if self.frame_index >= len(self.animation_list[self.action]):
+            # Death stays on last frame forever
             if self.action == 3:
                 self.frame_index = len(self.animation_list[self.action]) - 1
-            elif self.is_defending:
-                # while defending, loop defend animation
-                self.action = 4
-                self.frame_index = len(self.animation_list[4]) - 1
+
+            # Defend stays on last frame only while defending
+            elif self.action == 4:
+                if self.is_defending:
+                    self.frame_index = len(self.animation_list[self.action]) - 1
+                else:
+                    self.idle()
+
+            # Attack/Hurt finish, then either return to defend-hold or idle
+            elif self.action in (1, 2):
+                if self.is_defending:
+                    self.action = 4
+                    self.frame_index = len(self.animation_list[4]) - 1
+                    self.update_time = pygame.time.get_ticks()
+                else:
+                    self.idle()
+
             else:
                 self.idle()
 
@@ -392,6 +407,12 @@ class Fighter:
 
         # Counter attack chance
         if roll < counter_chance:
+            # play attack
+            self.pick_attack()
+            self.action = 1
+            self.frame_index = 0
+            self.update_time = pygame.time.get_ticks()
+
             counter_damage = max(1, int(self.strength * 0.6) + random.randint(-2, 2))
             attacker.hp -= counter_damage
             if attacker.hp < 1:
@@ -614,39 +635,54 @@ while run:
         # enemy action
         for count, enemy in enumerate(Enemy_list):
             if current_fighter == 2 + count:
-                if enemy.alive == True:
-                    action_cooldown += 1
-                    if action_cooldown >= action_wait_time:
-                        # Check if health is low enough to heal
-                        if enemy.hp / enemy.max_hp < 0.5 and enemy.potions > 0:
-                            if enemy.hp + enemy_potion_effect < enemy.max_hp:
-                                heal_amount = enemy_potion_effect
-                            else:
-                                heal_amount = enemy.max_hp - enemy.hp
-                            enemy.hp += heal_amount
-                            enemy.potions -= 1
-                            damage_text = DamageText(
-                                enemy.rect.centerx,
-                                enemy.rect.y,
-                                str(heal_amount),
-                                green,
-                            )
-                            damage_text_group.add(damage_text)
-                            current_fighter += 1
-                            action_cooldown = 0
-                            continue  # Skip attack if potion is used
-                        # Attack player
-                        else:
-                            enemy.pick_attack()
-                            enemy.attack(Samurai)
-                            current_fighter += 1
-                            action_cooldown = 0
-                else:
+                if enemy.alive == False:
                     current_fighter += 1
+                    action_cooldown = 0
+                    continue
+
+                action_cooldown += 1
+                if action_cooldown < action_wait_time:
+                    continue
+
+                # clear defend state if enemy was defending last turn
+                if enemy.is_defending and enemy.action == 4:
+                    enemy.is_defending = False
+                    enemy.idle()
+
+                # low HP -> potion
+                if enemy.hp / enemy.max_hp < 0.5 and enemy.potions > 0:
+                    if enemy.hp + enemy_potion_effect < enemy.max_hp:
+                        heal_amount = enemy_potion_effect
+                    else:
+                        heal_amount = enemy.max_hp - enemy.hp
+
+                    enemy.hp += heal_amount
+                    enemy.potions -= 1
+                    damage_text = DamageText(
+                        enemy.rect.centerx,
+                        enemy.rect.y,
+                        str(heal_amount),
+                        green,
+                    )
+                    damage_text_group.add(damage_text)
+
+                # otherwise defend or attack
+                else:
+                    if random.random() < enemy_defence_chance:
+                        enemy.defend()
+                    else:
+                        enemy.pick_attack()
+                        enemy.attack(Samurai)
+
+                current_fighter += 1
+                action_cooldown = 0
+                break  # only one enemy acts per turn
 
         # reset turns if all have gone
         if current_fighter > total_fighters:
             current_fighter = 1
+
+    # check for game over and reset
     else:
         if game_over == -1:
             draw.rect(screen, (0, 0, 0), (0, 0, screen_width, screen_height))
