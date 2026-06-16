@@ -17,6 +17,8 @@ The combat of a game which is alike a RPG game, inspired by final fantasy turn-b
 | PB-05 | Attacking an enemy is based on the cursor (click to attack an enemy)                                     | Medium   | Clicking an enemy attacks on players turn                                                              | Done   |
 | PB-06 | I want to ensure attacking works                                                                         | High     | Whole attacking system works                                                                           | Done   |
 | PB‑07 | I want damage and healing text to appear when actions occur                                              | Medium   | DamageText class exists, floats upward, deletes after lifespan, and triggers on damage/heal events     | Done   |
+| PB-08 | I want to add aniamtions for being attacked, and dying                                                   | Low      | Animations should play after the corresponding action                                                  | Done   |
+| PB-09 | When the player dies the game should end                                                                 | High     | When the player dies, the game should show black and a message on screem                               | Done   |
 
 ---
 
@@ -31,3 +33,5 @@ The combat of a game which is alike a RPG game, inspired by final fantasy turn-b
 | 10-06-2026 | Add PB-05                     | Core mechanic for attacking                  |
 | 10-06-2026 | Add PB-06                     | Core to ensure whole system works as a whole |
 | 16-06-2026 | Add PB-07                     | Visual combat feedback                       |
+| 16-06-2026 | Add PB-08                     | Hurt/Death Animations and code               |
+| 16-06-2026 | Add PB-09                     | Game Over screen implemented                 |

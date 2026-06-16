@@ -169,7 +169,7 @@ PB-02 Healing text follows the same logic. Colour is different. Healing is imple
 
 ## Sprint 5
 
-**Sprint Goal:** Implement core stats, health bars display correctly.
+**Sprint Goal:** Finish adding core animations for combat loop
 
 ### Committed Items
 
@@ -180,9 +180,9 @@ PB-02 Healing text follows the same logic. Colour is different. Healing is imple
 
 ### Sprint Plan
 
-1. Load and animate Idle sprites for Samurai and Enemy
-2. Implement `HealthBar.draw()` with green/red ratio bars
-3. Load panel and background assets; render HUD text
+1. Set up constant variable for game ending
+2. Put the combat loop inside the game ending condition
+3. If the player dies, a ending screen should appear
 
 ### Unit Test Summary
 
@@ -193,13 +193,13 @@ PB-02 Healing text follows the same logic. Colour is different. Healing is imple
 
 ### Sprint Review
 
-PB-01 was a success and idle animations were implemented, attack animations were also added to test action logic aswell.
-PB-02 Works correctly as it should, but logic it currently untested as there is no attack function yet
+PB-01 Hurt and death animations were added and integrated into combat system.
+PB-02 When the player dies, the screen appears successfully
 
 ### Sprint Retrospective
 
-- **What went well:**Idle animations are simple repeating loops, health bar is a coloured rectangle with scalable values
-- **What didn't go well:**Couldn't test health bar reactivity due to missing logic
-- **What to improve next sprint:**Implement Attack logic
+- **What went well:** All action states work and do not conflict with eachother, game over works as intended
+- **What didn't go well:** Early testing of combat was limited
+- **What to improve next sprint:** Add Defence and run actions / possible sound effect although that can be implemented in the sprint after
 
 ---
