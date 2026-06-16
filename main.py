@@ -208,6 +208,9 @@ class Fighter:
     def update(self):
         animation_cooldown = 140
         # Handle animation
+        # Dead fighters stay dead
+        if not self.alive and self.action != 3:
+            self.death()
         # update image
         self.image = self.animation_list[self.action][self.frame_index]
         # Check the time before updating animation
@@ -231,13 +234,12 @@ class Fighter:
         rand = random.randint(-3, 5)
         damage = self.strength + rand
         target.hp -= damage
-        # run hurt
-        target.hurt()
-        # if target has died
+        # chyyeck if target has died if not play hurt animation
         if target.hp < 1:
             target.hp = 0
             target.alive = False
             target.death()
+        else: target.hurt()
         damage_text = DamageText(target.rect.centerx, target.rect.y, str(damage), red)
         damage_text_group.add(damage_text)
         # set variables to attack animation
