@@ -4,6 +4,8 @@ import random
 import pygame
 from pygame import draw
 from utilities import button
+import sqlite3
+from datetime import datetime
 
 # pygame setup
 pygame.init()
@@ -25,7 +27,8 @@ action_cooldown = 0
 action_wait_time = 90
 attack = False
 potion = False
-potion_effect = 12 + random.randint(-3, 3)
+player_potion_effect = 16 + random.randint(-2, 10)
+enemy_potion_effect = 9 + random.randint(-2, 5)
 clicked = False
 game_over = 0  # 0 = no winner, -1 = enemy win
 
@@ -435,14 +438,19 @@ while run:
                 # look for player action
                 # Attack
                 if attack == True and target is not None:
+                    was_alive = target.alive
                     Samurai.attack(target)
+
+                    if was_alive and not target.alive:
+                        Samurai.potions += 1
+
                     current_fighter += 1
                     action_cooldown = 0
                 # use Potion
                 if potion == True and Samurai.potions > 0:
                     # heal the player
-                    if Samurai.hp + potion_effect < Samurai.max_hp:
-                        heal_amount = potion_effect
+                    if Samurai.hp + player_potion_effect < Samurai.max_hp:
+                        heal_amount = player_potion_effect
                     else:
                         heal_amount = Samurai.max_hp - Samurai.hp
                     Samurai.hp += heal_amount
@@ -462,8 +470,8 @@ while run:
                     if action_cooldown >= action_wait_time:
                         # Check if health is low enough to heal
                         if enemy.hp / enemy.max_hp < 0.5 and enemy.potions > 0:
-                            if enemy.hp + potion_effect < enemy.max_hp:
-                                heal_amount = potion_effect
+                            if enemy.hp + enemy_potion_effect < enemy.max_hp:
+                                heal_amount = enemy_potion_effect
                             else:
                                 heal_amount = enemy.max_hp - enemy.hp
                             enemy.hp += heal_amount
