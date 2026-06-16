@@ -202,6 +202,8 @@ class Fighter:
         if target.hp < 1:
             target.hp = 0
             target.alive = False
+        damage_text = DamageText(target.rect.centerx, target.rect.y, str(damage), red)
+        damage_text_group.add(damage_text)
         # set variables to attack animation
         self.action = 1
         self.frame_index = 0
@@ -225,6 +227,26 @@ class HealthBar:
         ratio = hp / self.max_hp
         pygame.draw.rect(screen, red, (self.x, self.y, 200, 20))
         pygame.draw.rect(screen, green, (self.x, self.y, 200 * ratio, 20))
+
+
+class DamageText(pygame.sprite.Sprite):
+    def __init__(self, x, y, damage, colour):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = font.render(damage, True, colour)
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+        self.counter = 0
+
+    def update(self):
+        # text hovers upwards
+        self.rect.y -= 1
+        # remove the text after it has moved a certain distance
+        self.counter += 1
+        if self.counter > 30:
+            self.kill()
+
+
+damage_text_group = pygame.sprite.Group()
 
 
 # Fighter Locations and stats
@@ -279,6 +301,10 @@ while run:
         enemy.update()
         enemy.draw()
 
+    # draw damage text
+    damage_text_group.update()
+    damage_text_group.draw(screen)
+
     # control player actions
     # reset action var
     attack = False
@@ -319,6 +345,10 @@ while run:
                     heal_amount = Samurai.max_hp - Samurai.hp
                 Samurai.hp += heal_amount
                 Samurai.potions -= 1
+                damage_text = DamageText(
+                    Samurai.rect.centerx, Samurai.rect.y, str(heal_amount), green
+                )
+                damage_text_group.add(damage_text)
                 current_fighter += 1
                 action_cooldown = 0
 
@@ -336,6 +366,10 @@ while run:
                             heal_amount = enemy.max_hp - enemy.hp
                         enemy.hp += heal_amount
                         enemy.potions -= 1
+                        damage_text = DamageText(
+                            enemy.rect.centerx, enemy.rect.y, str(heal_amount), green
+                        )
+                        damage_text_group.add(damage_text)
                         current_fighter += 1
                         action_cooldown = 0
                         continue  # Skip attack if potion is used

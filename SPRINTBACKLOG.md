@@ -96,20 +96,18 @@ PB-04 Cursor collision works through pygame library, clicking is also done throu
 
 ### Committed Items
 
-| PB ID | User Story                        |
-| ----- | --------------------------------- |
-| PB-01 | Potions would make the game better     |
+| PB ID | User Story                                  |
+| ----- | ------------------------------------------- |
+| PB-01 | Potions would make the game better          |
 | PB-02 | Enemies shoud also have the ability to heal |
-| PB-03 | Damage done should also be visualised |
-
+| PB-03 | Damage done should also be visualised       |
 
 ### Sprint Plan
 
 1. Import potion sprite and button library
-2. Create a button with the potion sprite 
+2. Create a button with the potion sprite
 3. Implement the health boost feature into when clicking the button
 4. Set up function to display damage text
- 
 
 ### Unit Test Summary
 
@@ -128,5 +126,45 @@ PB-02 Works correctly as it should, but logic it currently untested as there is 
 - **What went well:** Idle animations are simple repeating loops, health bar is a coloured rectangle with scalable values
 - **What didn't go well:** Couldn't test health bar reactivity due to missing logic
 - **What to improve next sprint:** Implement Attack logic
+
+## Sprint 4
+
+**Sprint Goal:** Add in a class that allows for damage/heal text to appear when those actions are called
+
+### Committed Items
+
+| PB ID | User Story                        |
+| ----- | --------------------------------- |
+| PB-01 | I've gotta add damage trext       |
+| PB-02 | I've also got to add healing text |
+
+### Sprint Plan
+
+1. Crete a DamageText class
+2. Define its parameters
+3. Implement into actions
+
+### Unit Test Summary
+
+| Test ID | Description                                          | Expected Result                               | Pass/Fail |
+| ------- | ---------------------------------------------------- | --------------------------------------------- | --------- |
+| T-01    | Instantiate `DamageText object with valid parameters | Correct `rect.center`, `counter = 0`          | Pass      |
+| T-02    | Verify upwards movement                              | After `update()`, `rect.y` decreases by 1     | Pass      |
+| T-03    | Verify counter increment                             | Each `update()` increases `counter` by 1      | Pass      |
+| T-04    | Delete after lifespan                                | after `update()` is called 31 times `.kill()` | Pass      |
+| T-05    | Render is correct                                    | `image` is a valid `Surface`                  | Pass      |
+| T-06    | Group behaviour                                      | Calling `group.update()` updates position     | Pass      |
+| T-07    | DamageText                                           | Only one text per `action`                    | Pass      |
+
+### Sprint Review
+
+PB-01 Fully implemented text into combat loop. Damage numbers appear. Behaviour matches
+PB-02 Healing text follows the same logic. Colour is different. Healing is implemented although combat logic is still incomplete.
+
+### Sprint Retrospective
+
+- **What went well:** `DamageText` shows damage correctly, healing is also visualised
+- **What didn't go well:** Enemy behaviour is still basic, linear
+- **What to improve next sprint:** Add animations for other states, begin planning defence options
 
 ---
