@@ -167,4 +167,39 @@ PB-02 Healing text follows the same logic. Colour is different. Healing is imple
 - **What didn't go well:** Enemy behaviour is still basic, linear
 - **What to improve next sprint:** Add animations for other states, begin planning defence options
 
+## Sprint 5
+
+**Sprint Goal:** Finish adding core animations for combat loop
+
+### Committed Items
+
+| PB ID | User Story                                             |
+| ----- | ------------------------------------------------------ |
+| PB-01 | I want to add aniamtions for being attacked, and dying |
+| PB-02 | When the player dies the game should end               |
+
+### Sprint Plan
+
+1. Set up constant variable for game ending
+2. Put the combat loop inside the game ending condition
+3. If the player dies, a ending screen should appear
+
+### Unit Test Summary
+
+| Test ID | Description                      | Expected Result                          | Pass/Fail |
+| ------- | -------------------------------- | ---------------------------------------- | --------- |
+| T-01    | Health bar renders green segment | Green rect width = `200 * (hp/max_hp)`   | Pass      |
+| T-02    | Idle animation loops             | `frame_index` resets to 0 at end of list | Pass      |
+
+### Sprint Review
+
+PB-01 Hurt and death animations were added and integrated into combat system.
+PB-02 When the player dies, the screen appears successfully
+
+### Sprint Retrospective
+
+- **What went well:** All action states work and do not conflict with eachother, game over works as intended
+- **What didn't go well:** Early testing of combat was limited
+- **What to improve next sprint:** Add Defence and run actions / possible sound effect although that can be implemented in the sprint after
+
 ---
