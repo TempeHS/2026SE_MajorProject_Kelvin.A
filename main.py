@@ -182,7 +182,7 @@ class Fighter:
             img = img.subsurface(img.get_bounding_rect()).copy()
             if flip:
                 img = pygame.transform.flip(img, True, False)
-        temp_list.append(img)
+            temp_list.append(img)
         self.animation_list.append(temp_list)
 
         # load death animation
@@ -216,7 +216,10 @@ class Fighter:
             self.frame_index += 1
         # Reset to start if animation has reached the end
         if self.frame_index >= len(self.animation_list[self.action]):
-            self.idle()
+            if self.action == 3:
+                self.frame_index = len(self.animation_list[self.action]) - 1
+            else:
+                self.idle()
 
     def idle(self):
         self.action = 0
@@ -233,7 +236,8 @@ class Fighter:
         # if target has died
         if target.hp < 1:
             target.hp = 0
-            target.alive = False and target.death()
+            target.alive = False
+            target.death()
         damage_text = DamageText(target.rect.centerx, target.rect.y, str(damage), red)
         damage_text_group.add(damage_text)
         # set variables to attack animation
