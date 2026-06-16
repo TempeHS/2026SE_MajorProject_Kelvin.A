@@ -24,7 +24,7 @@ action_cooldown = 0
 action_wait_time = 90
 attack = False
 potion = False
-potion_effect = 20
+potion_effect = 15 + random.randint(-5, 5)
 clicked = False
 
 # load fonts
@@ -51,7 +51,7 @@ panel_img = pygame.transform.scale(
     (screen_width, bottom_panel),
 )
 
-# Load Potiom
+# Load Potion
 Potion_img = pygame.image.load(
     "/workspaces/2026SE_MajorProject_Kelvin.A/assets/icons/Potion.png"
 ).convert_alpha()
@@ -239,7 +239,8 @@ class Fighter:
             target.hp = 0
             target.alive = False
             target.death()
-        else: target.hurt()
+        else:
+            target.hurt()
         damage_text = DamageText(target.rect.centerx, target.rect.y, str(damage), red)
         damage_text_group.add(damage_text)
         # set variables to attack animation
@@ -301,8 +302,8 @@ damage_text_group = pygame.sprite.Group()
 
 # Fighter Locations and stats
 Samurai = Fighter(500, 600, "Samurai", 100, 10, 3)
-Enemy1 = Fighter(1400, 600, "Enemy", 40, 5, 2, flip=True)
-Enemy2 = Fighter(1650, 590, "Enemy", 40, 5, 2, flip=True)
+Enemy1 = Fighter(1400, 600, "Enemy", 40, 5, 1, flip=True)
+Enemy2 = Fighter(1650, 590, "Enemy", 40, 5, 1, flip=True)
 
 Enemy_list = []
 Enemy_list.append(Enemy1)
