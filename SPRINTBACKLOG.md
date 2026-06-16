@@ -221,6 +221,7 @@ PB-02 When the player dies, the screen appears successfully
 2. Ensure the values are balanced
 3. Create a ui button / option to defend
 4. Create a defending and attacking mode of combat
+5. implement random chance for enemies to defend
 
 ### Unit Test Summary
 
