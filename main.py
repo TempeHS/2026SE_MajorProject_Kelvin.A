@@ -19,6 +19,16 @@ dt = 0
 target_fps = 144
 
 # define game variables
+player_mode = "ATTACK"  # attacking or defending
+
+enemy_defence_chance = 0.14  # 14% chance for enemy to defend
+
+# d efence chances
+partial_block_min = 0.45
+partial_block_max = 0.65
+full_block_chance = 0.20
+counter_chance = 0.10
+
 current_fighter = 1
 total_fighters = 3
 action_cooldown = 0
@@ -60,6 +70,7 @@ panel_img = pygame.transform.scale(
 Potion_img = pygame.image.load(
     "/workspaces/2026SE_MajorProject_Kelvin.A/assets/icons/Potion.png"
 ).convert_alpha()
+
 # Load Katana
 Katana_img = pygame.image.load(
     "/workspaces/2026SE_MajorProject_Kelvin.A/assets/icons/Katana.png"
@@ -68,6 +79,12 @@ Katana_img = pygame.transform.scale(
     Katana_img,
     (max(1, Katana_img.get_width() // 2), max(1, Katana_img.get_height() // 2)),
 )
+
+# load shield
+Shield_img = pygame.image.load(
+    "/workspaces/2026SE_MajorProject_Kelvin.A/assets/icons/shield.png"
+).convert_alpha()
+
 # load Restart button
 Restart_img = pygame.image.load(
     "/workspaces/2026SE_MajorProject_Kelvin.A/assets/ui/restart_button.png"
@@ -339,7 +356,7 @@ class DamageText(pygame.sprite.Sprite):
 
 
 damage_text_group = pygame.sprite.Group()
-
+mode_button_rect = pygame.Rect(300, screen_height - bottom_panel + 150, 260, 70)
 
 # Fighter Locations and stats
 Samurai = Fighter(500, 600, "Samurai", 100, 14, 3)

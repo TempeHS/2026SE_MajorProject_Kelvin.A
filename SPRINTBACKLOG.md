@@ -203,3 +203,41 @@ PB-02 When the player dies, the screen appears successfully
 - **What to improve next sprint:** Add Defence and run actions / possible sound effect although that can be implemented in the sprint after
 
 ---
+
+## Sprint 6
+
+**Sprint Goal:** Add defence options, run is not a feature worth implementing.
+
+### Committed Items
+
+| PB ID | User Story                                               |
+| ----- | -------------------------------------------------------- |
+| PB-01 | The player and enemies should be able to defend          |
+| PB-02 | The amount a player defends from should vary and be fair |
+
+### Sprint Plan
+
+1. Create a action to defend
+2. Ensure the values are balanced
+3. Create a ui button / option to defend
+4. Create a defending and attacking mode of combat
+
+### Unit Test Summary
+
+| Test ID | Description                      | Expected Result                          | Pass/Fail |
+| ------- | -------------------------------- | ---------------------------------------- | --------- |
+| T-01    | Health bar renders green segment | Green rect width = `200 * (hp/max_hp)`   | Pass      |
+| T-02    | Idle animation loops             | `frame_index` resets to 0 at end of list | Pass      |
+
+### Sprint Review
+
+PB-01 was a success and idle animations were implemented, attack animations were also added to test action logic aswell.
+PB-02 Works correctly as it should, but logic it currently untested as there is no attack function yet
+
+### Sprint Retrospective
+
+- **What went well:**Idle animations are simple repeating loops, health bar is a coloured rectangle with scalable values
+- **What didn't go well:**Couldn't test health bar reactivity due to missing logic
+- **What to improve next sprint:**Implement Attack logic
+
+---
