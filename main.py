@@ -2,6 +2,7 @@
 import os
 import random
 import pygame
+from utilities import button
 
 # pygame setup
 pygame.init()
@@ -23,6 +24,7 @@ action_cooldown = 0
 action_wait_time = 90
 attack = False
 potion = False
+potion_effect = 20
 clicked = False
 
 # load fonts
@@ -40,6 +42,7 @@ backround_img = pygame.transform.scale(
     ).convert(),
     _bg_size,
 )
+
 # Load Panel
 panel_img = pygame.transform.scale(
     pygame.image.load(
@@ -47,6 +50,12 @@ panel_img = pygame.transform.scale(
     ).convert_alpha(),
     (screen_width, bottom_panel),
 )
+
+# Load Potiom
+Potion_img = pygame.image.load(
+    "/workspaces/2026SE_MajorProject_Kelvin.A/assets/icons/Potion.png"
+).convert_alpha()
+
 # Load Katana
 Katana_img = pygame.image.load(
     "/workspaces/2026SE_MajorProject_Kelvin.A/assets/icons/Katana.png"
@@ -55,6 +64,7 @@ Katana_img = pygame.transform.scale(
     Katana_img,
     (max(1, Katana_img.get_width() // 2), max(1, Katana_img.get_height() // 2)),
 )
+
 # Anchor mouse position to blade tip
 katana_hotspot = (8, 8)
 
@@ -203,6 +213,7 @@ class Fighter:
         screen.blit(self.image, draw_rect)
 
 
+# Health bar class to show health of player and enemies
 class HealthBar:
     def __init__(self, x, y, hp, max_hp):
         self.x = x
@@ -233,6 +244,12 @@ Enemy1_health_bar = HealthBar(
 )
 Enemy2_health_bar = HealthBar(
     1580, screen_height - bottom_panel + 190, Enemy2.hp, Enemy2.max_hp
+)
+
+# create buttons
+
+health_potion_button = button.Button(
+    80, screen_height - bottom_panel + 150, Potion_img, 0.3
 )
 
 while run:
@@ -278,6 +295,11 @@ while run:
                 target = Enemy_list[count]
             break
 
+    if health_potion_button.draw(screen):
+        potion = True
+    # no. of potions shown in panel
+    draw_text(str(Samurai.potions), font, red, 190, screen_height - bottom_panel + 150)
+
     # player action
     if Samurai.alive == True and current_fighter == 1:
         action_cooldown += 1
@@ -288,6 +310,17 @@ while run:
                 Samurai.attack(target)
                 current_fighter += 1
                 action_cooldown = 0
+            # use Potion
+            if potion == True and Samurai.potions > 0:
+                # heal the player
+                if Samurai.hp + potion_effect < Samurai.max_hp:
+                    heal_amount = potion_effect
+                else:
+                    heal_amount = Samurai.max_hp - Samurai.hp
+                Samurai.hp += heal_amount
+                Samurai.potions -= 1
+                current_fighter += 1
+                action_cooldown = 0
 
     # enemy action
     for count, enemy in enumerate(Enemy_list):
@@ -295,11 +328,23 @@ while run:
             if enemy.alive == True:
                 action_cooldown += 1
                 if action_cooldown >= action_wait_time:
+                    # Check if health is low enough to heal
+                    if enemy.hp / enemy.max_hp < 0.5 and enemy.potions > 0:
+                        if enemy.hp + potion_effect < enemy.max_hp:
+                            heal_amount = potion_effect
+                        else:
+                            heal_amount = enemy.max_hp - enemy.hp
+                        enemy.hp += heal_amount
+                        enemy.potions -= 1
+                        current_fighter += 1
+                        action_cooldown = 0
+                        continue  # Skip attack if potion is used
                     # Attack player
-                    enemy.pick_attack()
-                    enemy.attack(Samurai)
-                    current_fighter += 1
-                    action_cooldown = 0
+                    else:
+                        enemy.pick_attack()
+                        enemy.attack(Samurai)
+                        current_fighter += 1
+                        action_cooldown = 0
             else:
                 current_fighter += 1
 
@@ -317,7 +362,7 @@ while run:
             break
 
     if hovering_enemy:
-        pygame.mouse.set_visible(False)
+        pygame.mouse.set_visible(False)  # Unavailable due to VNC
         katana_pos = (live_pos[0] - katana_hotspot[0], live_pos[1] - katana_hotspot[1])
         screen.blit(Katana_img, katana_pos)
     else:
