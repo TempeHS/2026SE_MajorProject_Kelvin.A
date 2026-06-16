@@ -4,8 +4,6 @@ import random
 import pygame
 from pygame import draw
 from utilities import button
-import sqlite3
-from datetime import datetime
 
 # pygame setup
 pygame.init()
