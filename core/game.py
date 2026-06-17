@@ -15,7 +15,7 @@ def init_db():
         sakata_hp INTEGER NOT NULL CHECK (sakata_hp >= 0)
         );
         """)
-    conn.commit()
+        conn.commit()
 
 
 def save_match_result(outcome, player_hp, gintoki_hp, sakata_hp):
@@ -27,4 +27,4 @@ def save_match_result(outcome, player_hp, gintoki_hp, sakata_hp):
         """,
             (outcome, max(0, player_hp), max(0, gintoki_hp), max(0, sakata_hp)),
         )
-    conn.commit()
+        conn.commit()
