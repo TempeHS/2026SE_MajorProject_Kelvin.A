@@ -203,3 +203,45 @@ PB-02 When the player dies, the screen appears successfully
 - **What to improve next sprint:** Add Defence and run actions / possible sound effect although that can be implemented in the sprint after
 
 ---
+
+## Sprint 6
+
+**Sprint Goal:** Add defence options, run is not a feature worth implementing.
+
+### Committed Items
+
+| PB ID | User Story                                               |
+| ----- | -------------------------------------------------------- |
+| PB-01 | The player and enemies should be able to defend          |
+| PB-02 | The amount a player defends from should vary and be fair |
+
+### Sprint Plan
+
+1. Create a action to defend
+2. Ensure the values are balanced
+3. Create a ui button / option to defend
+4. Create a defending and attacking mode of combat
+5. implement random chance for enemies to defend
+
+### Unit Test Summary
+
+| Test ID | Description                                    | Expected Result                                          | Pass/Fail |
+| ------- | ---------------------------------------------- | -------------------------------------------------------- | --------- |
+| T-01    | Player clicks mode button                      | `player_mode` changes to 1                               | Pass      |
+| T-02    | Player clicks mode button to go back to attack | `player_mode` changes to 0                               | pass      |
+| T-03    | Player clicks to defend                        | `defend is set to `true`                                 | pass      |
+| T-04    | `Samurai_defend()` called                      | `is_defending == True`, `action == 4`, `frame_index == 0 | pass      |
+| T-05    | Guard damage called                            | `damage` calculated for defence                          | pass      |
+
+### Sprint Review
+
+PB-01 is a success with defending mode having full compatability into the combat system
+PB-02 Defending chance is random with different variables having different chances
+
+### Sprint Retrospective
+
+- **What went well:** Defending is fully incorporated, and does not conflict
+- **What didn't go well:** User feedback suggested that their should be someway to know whos turn it is
+- **What to improve next sprint:** Implement turn feedback, create database for when Samurai dies to log difficulty
+
+---

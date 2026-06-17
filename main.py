@@ -19,6 +19,16 @@ dt = 0
 target_fps = 144
 
 # define game variables
+player_mode = 0  # default to attack mode
+
+enemy_defence_chance = 0.33  # 33% chance for enemy to defend
+
+# d efence chances
+partial_block_min = 0.45
+partial_block_max = 0.65
+full_block_chance = 0.20
+counter_chance = 0.10
+
 current_fighter = 1
 total_fighters = 3
 action_cooldown = 0
@@ -32,6 +42,7 @@ game_over = 0  # 0 = no winner, -1 = enemy win
 
 # load fonts
 font = pygame.font.SysFont("Times New Roman", 40)
+mode_font = pygame.font.SysFont("Times New Roman", 20)
 
 # define colours
 red = (255, 0, 0)
@@ -60,6 +71,7 @@ panel_img = pygame.transform.scale(
 Potion_img = pygame.image.load(
     "/workspaces/2026SE_MajorProject_Kelvin.A/assets/icons/Potion.png"
 ).convert_alpha()
+
 # Load Katana
 Katana_img = pygame.image.load(
     "/workspaces/2026SE_MajorProject_Kelvin.A/assets/icons/Katana.png"
@@ -68,13 +80,29 @@ Katana_img = pygame.transform.scale(
     Katana_img,
     (max(1, Katana_img.get_width() // 2), max(1, Katana_img.get_height() // 2)),
 )
+
+# load shield
+Shield_img = pygame.image.load(
+    "/workspaces/2026SE_MajorProject_Kelvin.A/assets/icons/shield.png"
+).convert_alpha()
+Shield_scale = 0.28
+Shield_img = pygame.transform.scale(
+    Shield_img,
+    (
+        max(1, int(Shield_img.get_width() * Shield_scale)),
+        max(1, int(Shield_img.get_height() * Shield_scale)),
+    ),
+)
+
+
 # load Restart button
 Restart_img = pygame.image.load(
     "/workspaces/2026SE_MajorProject_Kelvin.A/assets/ui/restart_button.png"
 ).convert_alpha()
 
-# Anchor mouse position to blade tip
+# Anchor mouse position to tip
 katana_hotspot = (8, 8)
+shield_hotspot = (Shield_img.get_width() // 2, Shield_img.get_height() // 2)
 
 
 # create function for drawing text
@@ -127,9 +155,10 @@ class Fighter:
         self.start_potions = potions
         self.potions = potions
         self.alive = True
+        self.is_defending = False
         self.animation_list = []
         self.frame_index = 0
-        self.action = 0  # 0: Idle, 1: Attack, 2: Hurt, 3: Run, 4: Death
+        self.action = 0  # 0: Idle, 1: Attack, 2: Hurt, 3: Death, 4: Defend
         # Load Idle images
         temp_list = []
         self.update_time = pygame.time.get_ticks()
@@ -208,6 +237,21 @@ class Fighter:
             temp_list.append(img)
         self.animation_list.append(temp_list)
 
+        # load defend animation
+        temp_list = []
+        defend_path = f"{base_path}/Defend"
+        frame_count = len([f for f in os.listdir(defend_path) if f.endswith(".png")])
+        for i in range(1, frame_count + 1):
+            img = pygame.image.load(f"{defend_path}/{i}.png").convert_alpha()
+            img = pygame.transform.scale(
+                img, (img.get_width() * 3, img.get_height() * 3)
+            )
+            img = img.subsurface(img.get_bounding_rect()).copy()
+            if flip:
+                img = pygame.transform.flip(img, True, False)
+            temp_list.append(img)
+        self.animation_list.append(temp_list)
+
     def pick_attack(self):
         # Randomly select an Attack_* variant for the next attack
         self.animation_list[1] = random.choice(self.attack_variants)
@@ -226,9 +270,28 @@ class Fighter:
             self.update_time = pygame.time.get_ticks()
             self.frame_index += 1
         # Reset to start if animation has reached the end
+        # Reset to start if animation has reached the end
         if self.frame_index >= len(self.animation_list[self.action]):
+            # Death stays on last frame forever
             if self.action == 3:
                 self.frame_index = len(self.animation_list[self.action]) - 1
+
+            # Defend stays on last frame only while defending
+            elif self.action == 4:
+                if self.is_defending:
+                    self.frame_index = len(self.animation_list[self.action]) - 1
+                else:
+                    self.idle()
+
+            # Attack/Hurt finish, then either return to defend-hold or idle
+            elif self.action in (1, 2):
+                if self.is_defending:
+                    self.action = 4
+                    self.frame_index = len(self.animation_list[4]) - 1
+                    self.update_time = pygame.time.get_ticks()
+                else:
+                    self.idle()
+
             else:
                 self.idle()
 
@@ -238,6 +301,7 @@ class Fighter:
         self.update_time = pygame.time.get_ticks()
 
     def attack(self, target):
+
         # Base damage
         rand = random.randint(-3, 3)
         base_damage = self.strength + rand
@@ -248,34 +312,54 @@ class Fighter:
 
         # Calculate damage x crit
         if is_critical:
-            damage = int(base_damage * 1.5)
+            raw_damage = int(base_damage * 1.5)
         else:
-            damage = base_damage
+            raw_damage = base_damage
 
-        target.hp -= damage
-        if target.hp < 1:
-            target.hp = 0
-            target.alive = False
-            target.death()
+        damage, defense_result, counter_damage = target.guard_damage(raw_damage, self)
+
+        # Apply damage to target
+        if damage > 0:
+            target.hp -= damage
+            if target.hp < 1:
+                target.hp = 0
+                target.alive = False
+                target.death()
+            else:
+                target.hurt()
+
+        # Damage / defense floating text
+        if defense_result == "Blocked":
+            damage_text_group.add(
+                DamageText(target.rect.centerx, target.rect.y, "BLOCK", white)
+            )
+        elif defense_result == "Countered":
+            damage_text_group.add(
+                DamageText(target.rect.centerx, target.rect.y, "COUNTER", yellow)
+            )
+            if counter_damage > 0:
+                damage_text_group.add(
+                    DamageText(
+                        self.rect.centerx, self.rect.y, str(counter_damage), yellow
+                    )
+                )
         else:
-            target.hurt()
+            # show damage text / colour
+            if is_critical:
+                damage_colour = yellow
+            else:
+                damage_colour = red
 
-        # show damage text / colour
-        if is_critical:
-            damage_colour = yellow
-        else:
-            damage_colour = red
+            # Sylise crit marker
+            if is_critical:
+                damage_display = f"{damage}!"
+            else:
+                damage_display = str(damage)
 
-        # Sylise crit marker
-        if is_critical:
-            damage_display = f"{damage}!"
-        else:
-            damage_display = str(damage)
-
-        damage_text = DamageText(
-            target.rect.centerx, target.rect.y, damage_display, damage_colour
-        )
-        damage_text_group.add(damage_text)
+            damage_text = DamageText(
+                target.rect.centerx, target.rect.y, damage_display, damage_colour
+            )
+            damage_text_group.add(damage_text)
 
         self.action = 1
         self.frame_index = 0
@@ -300,11 +384,51 @@ class Fighter:
 
     def reset(self):
         self.alive = True
+        self.is_defending = False
         self.hp = self.max_hp
         self.potions = self.start_potions
         self.frame_index = 0
         self.action = 0
         self.update_time = pygame.time.get_ticks()
+
+    # set defending state and return to idle animation
+    def defend(self):
+        self.is_defending = True
+        self.action = 4
+        self.frame_index = 0
+        self.update_time = pygame.time.get_ticks()
+
+    def guard_damage(self, incoming_damage, attacker):
+        # default no defense active
+        if self.is_defending == False:
+            return incoming_damage, "Hit", 0
+
+        roll = random.random()
+
+        # Counter attack chance
+        if roll < counter_chance:
+            # play attack
+            self.pick_attack()
+            self.action = 1
+            self.frame_index = 0
+            self.update_time = pygame.time.get_ticks()
+
+            counter_damage = max(1, int(self.strength * 0.6) + random.randint(-2, 2))
+            attacker.hp -= counter_damage
+            if attacker.hp < 1:
+                attacker.hp = 0
+                attacker.alive = False
+                attacker.death()
+            else:
+                attacker.hurt()
+            return 0, "Countered", counter_damage
+
+        if roll < counter_chance + full_block_chance:
+            return 0, "Blocked", 0
+
+        taken_ratio = random.uniform(partial_block_min, partial_block_max)
+        reduced = max(1, int(incoming_damage * taken_ratio))
+        return reduced, "Partial", 0
 
 
 # Health bar class to show health of player and enemies
@@ -340,11 +464,10 @@ class DamageText(pygame.sprite.Sprite):
 
 damage_text_group = pygame.sprite.Group()
 
-
 # Fighter Locations and stats
 Samurai = Fighter(500, 600, "Samurai", 100, 14, 3)
 Enemy1 = Fighter(1400, 600, "Enemy", 45, 8, 1, flip=True)
-Enemy2 = Fighter(1650, 590, "Enemy", 45, 8, 1, flip=True)
+Enemy2 = Fighter(1650, 590, "Enemy", 45, 10000, 1, flip=True)
 
 Enemy_list = []
 Enemy_list.append(Enemy1)
@@ -360,6 +483,11 @@ Enemy2_health_bar = HealthBar(
     1580, screen_height - bottom_panel + 190, Enemy2.hp, Enemy2.max_hp
 )
 
+# set button rect for mode change
+mode_button_rect = pygame.Rect(
+    Enemy1_health_bar.x - 400, Enemy1_health_bar.y - 8, 140, 60
+)
+
 # create buttons
 # Health potion
 health_potion_button = button.Button(
@@ -373,6 +501,24 @@ restart_button = button.Button(
     1,
 )
 
+
+# change mode button
+def draw_mode_button():
+    if player_mode == 0:
+        fill = (170, 50, 50)
+        mode_text = "ATTACKING"
+    else:
+        fill = (50, 120, 170)
+        mode_text = "DEFENDING"
+
+    pygame.draw.rect(screen, fill, mode_button_rect, border_radius=12)
+    pygame.draw.rect(screen, white, mode_button_rect, 3, border_radius=12)
+
+    label_img = mode_font.render(mode_text, True, white)
+    label_rect = label_img.get_rect(center=mode_button_rect.center)
+    screen.blit(label_img, label_rect)
+
+
 while run:
 
     clicked = False
@@ -380,7 +526,13 @@ while run:
         if event.type == pygame.QUIT:
             run = False
         if event.type == pygame.MOUSEBUTTONDOWN:
-            clicked = True
+            if mode_button_rect.collidepoint(event.pos):
+                if player_mode == 0:
+                    player_mode = 1
+                elif player_mode == 1:
+                    player_mode = 0
+            else:
+                clicked = True
 
     screen.fill((0, 0, 0))
 
@@ -404,21 +556,29 @@ while run:
     damage_text_group.update()
     damage_text_group.draw(screen)
 
+    # draw mode button
+    draw_mode_button()
+
     # control player actions
     # reset action var
     attack = False
     potion = False
     target = None
+    defend = False
 
     pos = pygame.mouse.get_pos()
 
-    for count, enemy in enumerate(Enemy_list):
-        hover_rect = enemy.image.get_rect(midbottom=enemy.rect.midbottom)
-        if enemy.alive and hover_rect.collidepoint(pos):
-            if clicked == True:
-                attack = True
-                target = Enemy_list[count]
-            break
+    if player_mode == 1 and clicked:
+        defend = True
+
+    if player_mode == 0:
+        for count, enemy in enumerate(Enemy_list):
+            hover_rect = enemy.image.get_rect(midbottom=enemy.rect.midbottom)
+            if enemy.alive and hover_rect.collidepoint(pos):
+                if clicked == True:
+                    attack = True
+                    target = Enemy_list[count]
+                break
 
     if health_potion_button.draw(screen):
         potion = True
@@ -431,9 +591,19 @@ while run:
             game_over = -1
         # player action
         if Samurai.alive == True and current_fighter == 1:
+            if Samurai.is_defending and Samurai.action == 4:
+                Samurai.is_defending = False
+                Samurai.idle()
             action_cooldown += 1
             if action_cooldown >= action_wait_time:
                 # look for player action
+
+                # Defend
+                if defend == True:
+                    Samurai.defend()
+                    current_fighter += 1
+                    action_cooldown = 0
+
                 # Attack
                 if attack == True and target is not None:
                     was_alive = target.alive
@@ -444,6 +614,7 @@ while run:
 
                     current_fighter += 1
                     action_cooldown = 0
+
                 # use Potion
                 if potion == True and Samurai.potions > 0:
                     # heal the player
@@ -457,45 +628,61 @@ while run:
                         Samurai.rect.centerx, Samurai.rect.y, str(heal_amount), green
                     )
                     damage_text_group.add(damage_text)
+
                     current_fighter += 1
                     action_cooldown = 0
 
         # enemy action
         for count, enemy in enumerate(Enemy_list):
             if current_fighter == 2 + count:
-                if enemy.alive == True:
-                    action_cooldown += 1
-                    if action_cooldown >= action_wait_time:
-                        # Check if health is low enough to heal
-                        if enemy.hp / enemy.max_hp < 0.5 and enemy.potions > 0:
-                            if enemy.hp + enemy_potion_effect < enemy.max_hp:
-                                heal_amount = enemy_potion_effect
-                            else:
-                                heal_amount = enemy.max_hp - enemy.hp
-                            enemy.hp += heal_amount
-                            enemy.potions -= 1
-                            damage_text = DamageText(
-                                enemy.rect.centerx,
-                                enemy.rect.y,
-                                str(heal_amount),
-                                green,
-                            )
-                            damage_text_group.add(damage_text)
-                            current_fighter += 1
-                            action_cooldown = 0
-                            continue  # Skip attack if potion is used
-                        # Attack player
-                        else:
-                            enemy.pick_attack()
-                            enemy.attack(Samurai)
-                            current_fighter += 1
-                            action_cooldown = 0
-                else:
+                if enemy.alive == False:
                     current_fighter += 1
+                    action_cooldown = 0
+                    continue
+
+                action_cooldown += 1
+                if action_cooldown < action_wait_time:
+                    continue
+
+                # clear defend state if enemy was defending last turn
+                if enemy.is_defending and enemy.action == 4:
+                    enemy.is_defending = False
+                    enemy.idle()
+
+                # low HP -> potion
+                if enemy.hp / enemy.max_hp < 0.5 and enemy.potions > 0:
+                    if enemy.hp + enemy_potion_effect < enemy.max_hp:
+                        heal_amount = enemy_potion_effect
+                    else:
+                        heal_amount = enemy.max_hp - enemy.hp
+
+                    enemy.hp += heal_amount
+                    enemy.potions -= 1
+                    damage_text = DamageText(
+                        enemy.rect.centerx,
+                        enemy.rect.y,
+                        str(heal_amount),
+                        green,
+                    )
+                    damage_text_group.add(damage_text)
+
+                # otherwise defend or attack
+                else:
+                    if random.random() < enemy_defence_chance:
+                        enemy.defend()
+                    else:
+                        enemy.pick_attack()
+                        enemy.attack(Samurai)
+
+                current_fighter += 1
+                action_cooldown = 0
+                break  # only one enemy acts per turn
 
         # reset turns if all have gone
         if current_fighter > total_fighters:
             current_fighter = 1
+
+    # check for game over and reset
     else:
         if game_over == -1:
             draw.rect(screen, (0, 0, 0), (0, 0, screen_width, screen_height))
@@ -540,8 +727,12 @@ while run:
             hovering_enemy = True
             break
 
-    if hovering_enemy:
-        pygame.mouse.set_visible(False)  # Unavailable due to VNC
+    if player_mode == 1:  # DEFEND mode
+        pygame.mouse.set_visible(False)
+        shield_pos = (live_pos[0] - shield_hotspot[0], live_pos[1] - shield_hotspot[1])
+        screen.blit(Shield_img, shield_pos)
+    elif hovering_enemy:
+        pygame.mouse.set_visible(False)
         katana_pos = (live_pos[0] - katana_hotspot[0], live_pos[1] - katana_hotspot[1])
         screen.blit(Katana_img, katana_pos)
     else:
