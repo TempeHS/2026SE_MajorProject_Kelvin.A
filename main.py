@@ -5,55 +5,55 @@ import math
 import os
 import random
 import pygame
-from pygame import draw
 from utilities import button
 import sqlite3
+from core.settings import *
 
 # pygame setup
 pygame.init()
 
 # Define constants
-bottom_panel = 360
-screen_width = 1920
-screen_height = 1080
+bottom_panel = Bottom_Panel
+screen_width = Screen_Width
+screen_height = Screen_Height
 screen = pygame.display.set_mode((screen_width, screen_height))
 clock = pygame.time.Clock()
 run = True
 dt = 0
-target_fps = 144
+target_fps = Target_fps
 
 # define game variables
-player_mode = 0  # default to attack mode
+player_mode = Player_mode_default  # default to attack mode
 
-enemy_defence_chance = 0.33  # 33% chance for enemy to defend
+enemy_defence_chance = Enemy_defence_chance  # 33% chance for enemy to defend
 
 # defence chances
-partial_block_min = 0.45
-partial_block_max = 0.65
-full_block_chance = 0.20
-counter_chance = 0.10
+partial_block_min = Partial_block_min
+partial_block_max = Partial_block_max
+full_block_chance = Full_block_chance
+counter_chance = Counter_chance
 
-current_fighter = 1
-total_fighters = 3
-action_cooldown = 0
-action_wait_time = 90
+current_fighter = Current_fighter_default
+total_fighters = Total_fighters
+action_cooldown = Action_cooldown_default
+action_wait_time = Action_wait_time
 attack = False
 potion = False
-player_potion_effect = 16 + random.randint(-2, 10)
-enemy_potion_effect = 9 + random.randint(-2, 5)
+player_potion_effect = Player_potion_effect
+enemy_potion_effect = Enemy_potion_effect
 clicked = False
-game_over = 0  # 0 = no winner, -1 = enemy win, 1 = player win
+game_over = Game_over_default  # 0 = no winner, -1 = enemy win, 1 = player win
 
 # load fonts
 font = pygame.font.SysFont("Times New Roman", 40)
 mode_font = pygame.font.SysFont("Times New Roman", 20)
 
 # define colours
-red = (255, 0, 0)
-green = (0, 255, 0)
-yellow = (255, 255, 0)
-white = (255, 255, 255)
-cyan = (0, 255, 255)
+red = Red
+green = Green
+yellow = Yellow
+white = White
+cyan = Cyan
 
 # load images
 _bg_size = (screen_width, screen_height - bottom_panel)
