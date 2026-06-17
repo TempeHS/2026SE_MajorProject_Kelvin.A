@@ -21,6 +21,8 @@ The combat of a game which is alike a RPG game, inspired by final fantasy turn-b
 | PB-09 | When the player dies the game should end                                                                 | High     | When the player dies, the game should show black and a message on screem                               | Done   |
 | PB-10 | The player and enemies should be able to defend                                                          | Done     |
 | PB-11 | The amount a player defends from should vary and be fair                                                 | Done     |
+| PB-12 | Turns should be visible to the player                                                                    | Done     | Medium                                                                                                 |
+| PB-13 | I should track game statistics for future balancing                                                      | Done     | Low                                                                                                    |
 
 ---
 
@@ -39,3 +41,5 @@ The combat of a game which is alike a RPG game, inspired by final fantasy turn-b
 | 16-06-2026 | Add PB-09                     | Game Over screen implemented                             |
 | 17-06-2026 | Add PB-10                     | Defence options implemented                              |
 | 17-06-2026 | Add PB-11                     | Defence reduction is randomised with a chance to counter |
+| 17-06-2026 | Add PB-12                     | Adds visual turn indicators                              |
+| 17-06-2026 | Add PB-13                     | Database for future adjustments                          |
