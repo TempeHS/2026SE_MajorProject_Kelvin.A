@@ -225,20 +225,23 @@ PB-02 When the player dies, the screen appears successfully
 
 ### Unit Test Summary
 
-| Test ID | Description                      | Expected Result                          | Pass/Fail |
-| ------- | -------------------------------- | ---------------------------------------- | --------- |
-| T-01    | Health bar renders green segment | Green rect width = `200 * (hp/max_hp)`   | Pass      |
-| T-02    | Idle animation loops             | `frame_index` resets to 0 at end of list | Pass      |
+| Test ID | Description                                    | Expected Result                                          | Pass/Fail |
+| ------- | ---------------------------------------------- | -------------------------------------------------------- | --------- |
+| T-01    | Player clicks mode button                      | `player_mode` changes to 1                               | Pass      |
+| T-02    | Player clicks mode button to go back to attack | `player_mode` changes to 0                               | pass      |
+| T-03    | Player clicks to defend                        | `defend is set to `true`                                 | pass      |
+| T-04    | `Samurai_defend()` called                      | `is_defending == True`, `action == 4`, `frame_index == 0 | pass      |
+| T-05    | Guard damage called                            | `damage` calculated for defence                          | pass      |
 
 ### Sprint Review
 
-PB-01 was a success and idle animations were implemented, attack animations were also added to test action logic aswell.
-PB-02 Works correctly as it should, but logic it currently untested as there is no attack function yet
+PB-01 is a success with defending mode having full compatability into the combat system
+PB-02 Defending chance is random with different variables having different chances
 
 ### Sprint Retrospective
 
-- **What went well:**Idle animations are simple repeating loops, health bar is a coloured rectangle with scalable values
-- **What didn't go well:**Couldn't test health bar reactivity due to missing logic
-- **What to improve next sprint:**Implement Attack logic
+- **What went well:** Defending is fully incorporated, and does not conflict
+- **What didn't go well:** User feedback suggested that their should be someway to know whos turn it is
+- **What to improve next sprint:** Implement turn feedback, create database for when Samurai dies to log difficulty
 
 ---

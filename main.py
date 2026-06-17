@@ -467,7 +467,7 @@ damage_text_group = pygame.sprite.Group()
 # Fighter Locations and stats
 Samurai = Fighter(500, 600, "Samurai", 100, 14, 3)
 Enemy1 = Fighter(1400, 600, "Enemy", 45, 8, 1, flip=True)
-Enemy2 = Fighter(1650, 590, "Enemy", 45, 8, 1, flip=True)
+Enemy2 = Fighter(1650, 590, "Enemy", 45, 10000, 1, flip=True)
 
 Enemy_list = []
 Enemy_list.append(Enemy1)
