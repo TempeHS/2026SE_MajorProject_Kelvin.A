@@ -582,8 +582,8 @@ damage_text_group = pygame.sprite.Group()
 
 # Fighter Locations and stats
 Player = Fighter(500, 600, "Samurai", 100, 14, 3)
-Gintoki = Fighter(1400, 600, "Gintoki", 45, 8, 1, flip=True)
-Sakata = Fighter(1650, 590, "Sakata", 45, 8, 1, flip=True)
+Gintoki = Fighter(1400, 600, "Gintoki", 85, 11, 2, flip=True)
+Sakata = Fighter(1650, 590, "Sakata", 60, 8, 1, flip=True)
 
 Enemy_list = []
 Enemy_list.append(Gintoki)
