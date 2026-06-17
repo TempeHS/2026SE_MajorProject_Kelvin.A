@@ -1,4 +1,6 @@
+# WAIT FOR postCreateCommand TO RUN FIRST
 # USE THIS WHEN UPDATING/STARTING GAME TO LOAD IN VNC: bash start.sh
+# WAIT FOR PORT 6080 TO RUN
 import os
 import random
 import pygame
@@ -143,6 +145,39 @@ def draw_panel():
             1580,
             (screen_height - bottom_panel + 30) + count * 110,
         )
+
+
+# change mode button
+def draw_mode_button():
+    if player_mode == 0:
+        fill = (170, 50, 50)
+        mode_text = "ATTACKING"
+    else:
+        fill = (50, 120, 170)
+        mode_text = "DEFENDING"
+
+    pygame.draw.rect(screen, fill, mode_button_rect, border_radius=12)
+    pygame.draw.rect(screen, white, mode_button_rect, 3, border_radius=12)
+
+    label_img = mode_font.render(mode_text, True, white)
+    label_rect = label_img.get_rect(center=mode_button_rect.center)
+    screen.blit(label_img, label_rect)
+
+
+# indicates whos turn it is
+def draw_turn_indicator():
+    if current_fighter == 1:
+        text = "Player's Turn"
+    else:
+        text = f"Enemy {current_fighter - 1}'s Turn"
+
+    # skip indication if the enemy is dead
+    if current_fighter > 1 and not Enemy_list[current_fighter - 2].alive:
+        text = f"Enemy {current_fighter - 1} is dead"
+
+    label_img = mode_font.render(text, True, white)
+    label_rect = label_img.get_rect(center=(screen_width // 2, 30))
+    screen.blit(label_img, label_rect)
 
 
 # Class for all fighters in the game (player and enemies)
@@ -502,23 +537,6 @@ restart_button = button.Button(
 )
 
 
-# change mode button
-def draw_mode_button():
-    if player_mode == 0:
-        fill = (170, 50, 50)
-        mode_text = "ATTACKING"
-    else:
-        fill = (50, 120, 170)
-        mode_text = "DEFENDING"
-
-    pygame.draw.rect(screen, fill, mode_button_rect, border_radius=12)
-    pygame.draw.rect(screen, white, mode_button_rect, 3, border_radius=12)
-
-    label_img = mode_font.render(mode_text, True, white)
-    label_rect = label_img.get_rect(center=mode_button_rect.center)
-    screen.blit(label_img, label_rect)
-
-
 while run:
 
     clicked = False
@@ -558,7 +576,8 @@ while run:
 
     # draw mode button
     draw_mode_button()
-
+    # draw turn indicator
+    draw_turn_indicator()
     # control player actions
     # reset action var
     attack = False
