@@ -286,3 +286,39 @@ PB-02 is also a success with enemy and player statistics being saved into the da
 - **What to improve next sprint:** 1. Refactor code to be more simpler to understand 2. Quality of life features (maybe)
 
 ---
+
+## Sprint 7
+
+**Sprint Goal:** Primarily created to refactor code structure (QOL improvements may occur)
+
+### Committed Items
+
+| PB ID | User Story                                            |
+| ----- | ----------------------------------------------------- |
+| PB-01 | The game should be split into its own respective uses |
+
+### Sprint Plan
+
+1. Identify what does what
+2. Move into own sections
+3. Ensure code runs as usual
+
+### Unit Test Summary
+
+| Test ID | Description                                         | Expected Result                  | Pass/Fail |
+| ------- | --------------------------------------------------- | -------------------------------- | --------- |
+| T-01    | Turn idicator shows on top left                     | visible on top left              | Pass      |
+| T-02    | Turn indicator cycles through current fighters turn | current_fighter value increases  | pass      |
+| T-03    | Indicator arrow visible                             | `draw()` on screen               | pass      |
+| T-04    | record game statistics                              | `save_match_result` executes sql | pass      |
+
+### Sprint Review
+
+PB-01 is a success with clear turn indicators
+PB-02 is also a success with enemy and player statistics being saved into the database
+
+### Sprint Retrospective
+
+- **What went well:** The game is pretty much finished with some features missing
+- **What didn't go well:** Originally intended to be a wave-fighter game, and to include sounds
+- **What to improve next sprint:** 1. Refactor code to be more simpler to understand 2. Quality of life features (maybe)
