@@ -7,6 +7,7 @@ import random
 import pygame
 from pygame import draw
 from utilities import button
+import sqlite3
 
 # pygame setup
 pygame.init()
@@ -26,7 +27,7 @@ player_mode = 0  # default to attack mode
 
 enemy_defence_chance = 0.33  # 33% chance for enemy to defend
 
-# d efence chances
+# defence chances
 partial_block_min = 0.45
 partial_block_max = 0.65
 full_block_chance = 0.20
@@ -41,7 +42,7 @@ potion = False
 player_potion_effect = 16 + random.randint(-2, 10)
 enemy_potion_effect = 9 + random.randint(-2, 5)
 clicked = False
-game_over = 0  # 0 = no winner, -1 = enemy win
+game_over = 0  # 0 = no winner, -1 = enemy win, 1 = player win
 
 # load fonts
 font = pygame.font.SysFont("Times New Roman", 40)
@@ -119,6 +120,37 @@ Restart_img = pygame.image.load(
 katana_hotspot = (8, 8)
 shield_hotspot = (Shield_img.get_width() // 2, Shield_img.get_height() // 2)
 
+# create database
+DB = "/workspaces/2026SE_MajorProject_Kelvin.A/database/game.db"
+result_saved = False
+
+
+def init_db():
+    with sqlite3.connect(DB) as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS match_results (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                played_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                outcome TEXT NOT NULL CHECK (outcome IN ('WIN', 'LOSS')),
+                player_hp INTEGER NOT NULL CHECK (player_hp >= 0),
+                gintoki_hp INTEGER NOT NULL CHECK (gintoki_hp >= 0),
+                sakata_hp INTEGER NOT NULL CHECK (sakata_hp >= 0)
+            );
+            """)
+        conn.commit()
+
+
+def save_match_result(outcome, player_hp, gintoki_hp, sakata_hp):
+    with sqlite3.connect(DB) as conn:
+        conn.execute(
+            """
+            INSERT INTO match_results (outcome, player_hp, gintoki_hp, sakata_hp)
+            VALUES (?, ?, ?, ?)
+            """,
+            (outcome, max(0, player_hp), max(0, gintoki_hp), max(0, sakata_hp)),
+        )
+        conn.commit()
+
 
 # create function for drawing text
 def draw_text(text, font, text_col, x, y):
@@ -179,7 +211,7 @@ def draw_mode_button():
 
 def draw_black_box_turn_indicator():
     # Draw a black box behind the turn indicator
-    box_width = 150
+    box_width = 175
     box_height = 50
     box_x = 10
     box_y = 10
@@ -213,13 +245,13 @@ def draw_turn_indicator():
     # draw indicator arrow next to the left of the current_fighter
     if current_fighter > 1:
         enemy_rect = Enemy_list[current_fighter - 2].rect
-        arrow_x = enemy_rect.left - Indicator_img.get_width() - 2
+        arrow_x = enemy_rect.left - Indicator_img.get_width() + 5
         arrow_y = enemy_rect.centery - Indicator_img.get_height() // 2
 
     else:
         # point to player
         player_rect = Player.rect
-        arrow_x = player_rect.left - Indicator_img.get_width() - 2
+        arrow_x = player_rect.left - Indicator_img.get_width() + 5
         arrow_y = player_rect.centery - Indicator_img.get_height() // 2
 
     # animate indicator bob left and right slightly
@@ -585,7 +617,8 @@ restart_button = button.Button(
     1,
 )
 
-
+# init database
+init_db()
 while run:
 
     clicked = False
@@ -704,6 +737,17 @@ while run:
                     action_cooldown = 0
 
         # enemy action
+        # check if all enemys are dead
+        # enemy action
+        if any(enemy.alive for enemy in Enemy_list) == False:
+            game_over = 1
+
+        # Save match result to database
+        if game_over != 0 and result_saved == False:
+            match_outcome = "WIN" if game_over == 1 else "LOSS"
+            save_match_result(match_outcome, Player.hp, Gintoki.hp, Sakata.hp)
+            result_saved = True
+
         for count, enemy in enumerate(Enemy_list):
             if current_fighter == 2 + count:
                 if enemy.alive == False:
@@ -762,6 +806,13 @@ while run:
                 center=(screen_width // 2, screen_height // 2)
             )
             screen.blit(text_surface, text_rect)
+        if game_over == 1:
+            draw.rect(screen, (0, 0, 0), (0, 0, screen_width, screen_height))
+            text_surface = font.render("ENEMIES SLAIN", False, cyan)
+            text_rect = text_surface.get_rect(
+                center=(screen_width // 2, screen_height // 2)
+            )
+            screen.blit(text_surface, text_rect)
 
         # Draw button
         if restart_button.draw(screen):
@@ -771,9 +822,9 @@ while run:
             current_fighter = 1
             action_cooldown = 0
             game_over = 0
+            result_saved = False
 
         # Draw restart text
-
         button_x = screen_width // 2 - Restart_img.get_width() // 2
         button_y = screen_height // 2 + 50
         label = font.render("RESTART", True, red)
