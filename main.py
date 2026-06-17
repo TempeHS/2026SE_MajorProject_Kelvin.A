@@ -4,10 +4,37 @@
 import math
 import os
 import random
+from pygame import draw
 import pygame
 from utilities import button
 import sqlite3
-from core.settings import *
+
+from core.settings import (
+    Bottom_Panel,
+    Screen_Width,
+    Screen_Height,
+    Target_fps,
+    Player_mode_default,
+    Enemy_defence_chance,
+    Partial_block_min,
+    Partial_block_max,
+    Full_block_chance,
+    Counter_chance,
+    Current_fighter_default,
+    Total_fighters,
+    Action_cooldown_default,
+    Action_wait_time,
+    Player_potion_effect,
+    Enemy_potion_effect,
+    Game_over_default,
+    Red,
+    Green,
+    Yellow,
+    White,
+    Cyan,
+)
+
+from utilities.resource_loader import load_fonts, load_images, get_cursor_hotspots
 
 # pygame setup
 pygame.init()
@@ -45,8 +72,7 @@ clicked = False
 game_over = Game_over_default  # 0 = no winner, -1 = enemy win, 1 = player win
 
 # load fonts
-font = pygame.font.SysFont("Times New Roman", 40)
-mode_font = pygame.font.SysFont("Times New Roman", 20)
+font, mode_font = load_fonts()
 
 # define colours
 red = Red
@@ -55,70 +81,18 @@ yellow = Yellow
 white = White
 cyan = Cyan
 
-# load images
-_bg_size = (screen_width, screen_height - bottom_panel)
-backround_img = pygame.transform.scale(
-    pygame.image.load(
-        "/workspaces/2026SE_MajorProject_Kelvin.A/assets/backgrounds/Background.gif"
-    ).convert(),
-    _bg_size,
-)
-
-# Load Panel
-panel_img = pygame.transform.scale(
-    pygame.image.load(
-        "/workspaces/2026SE_MajorProject_Kelvin.A/assets/icons/panel.png"
-    ).convert_alpha(),
-    (screen_width, bottom_panel),
-)
-
-# Load Potion
-Potion_img = pygame.image.load(
-    "/workspaces/2026SE_MajorProject_Kelvin.A/assets/icons/Potion.png"
-).convert_alpha()
-
-# Load Katana
-Katana_img = pygame.image.load(
-    "/workspaces/2026SE_MajorProject_Kelvin.A/assets/icons/Katana.png"
-).convert_alpha()
-Katana_img = pygame.transform.scale(
+(
+    backround_img,
+    panel_img,
+    Potion_img,
     Katana_img,
-    (max(1, Katana_img.get_width() // 2), max(1, Katana_img.get_height() // 2)),
-)
-
-# load shield
-Shield_img = pygame.image.load(
-    "/workspaces/2026SE_MajorProject_Kelvin.A/assets/icons/shield.png"
-).convert_alpha()
-Shield_scale = 0.28
-Shield_img = pygame.transform.scale(
     Shield_img,
-    (
-        max(1, int(Shield_img.get_width() * Shield_scale)),
-        max(1, int(Shield_img.get_height() * Shield_scale)),
-    ),
-)
-# load indicator arrow
-Indicator_img = pygame.image.load(
-    "/workspaces/2026SE_MajorProject_Kelvin.A/assets/icons/arrow_indicator.png"
-).convert_alpha()
-Indicator_scale = 0.30
-Indicator_img = pygame.transform.scale(
     Indicator_img,
-    (
-        max(1, int(Indicator_img.get_width() * Indicator_scale)),
-        max(1, int(Indicator_img.get_height() * Indicator_scale)),
-    ),
-)
-
-# load Restart button
-Restart_img = pygame.image.load(
-    "/workspaces/2026SE_MajorProject_Kelvin.A/assets/ui/restart_button.png"
-).convert_alpha()
+    Restart_img,
+) = load_images(screen_width, screen_height, bottom_panel)
 
 # Anchor mouse position to tip
-katana_hotspot = (8, 8)
-shield_hotspot = (Shield_img.get_width() // 2, Shield_img.get_height() // 2)
+katana_hotspot, shield_hotspot = get_cursor_hotspots(Shield_img)
 
 # create database
 DB = "/workspaces/2026SE_MajorProject_Kelvin.A/database/game.db"
