@@ -287,7 +287,7 @@ PB-02 is also a success with enemy and player statistics being saved into the da
 
 ---
 
-## Sprint 7
+## Sprint 8
 
 **Sprint Goal:** Primarily created to refactor code structure (QOL improvements may occur)
 
