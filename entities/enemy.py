@@ -40,3 +40,41 @@ def perform_enemy_action(
     else:
         enemy.pick_attack()
         enemy.attack(player)
+
+
+def enemy_turns(
+    enemy_list,
+    player,
+    current_fighter,
+    action_cooldown,
+    action_wait_time,
+    enemy_potion_effect,
+    enemy_defence_chance,
+    damage_text_group,
+    damage_text_class,
+    green,
+):
+    for count, enemy in enumerate(enemy_list):
+        if current_fighter != 2 + count:
+            continue
+
+        if enemy.alive is False:
+            return current_fighter + 1, 0
+
+        action_cooldown += 1
+        if action_cooldown < action_wait_time:
+            return current_fighter, action_cooldown
+
+        clear_enemy_defend_state(enemy)
+        perform_enemy_action(
+            enemy,
+            player,
+            enemy_potion_effect,
+            enemy_defence_chance,
+            damage_text_group,
+            damage_text_class,
+            green,
+        )
+        return current_fighter + 1, 0
+
+    return current_fighter, action_cooldown

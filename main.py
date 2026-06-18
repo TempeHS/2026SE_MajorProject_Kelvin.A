@@ -20,8 +20,14 @@ from core.scene_manager import (
     draw_game_over_overlay,
     draw_restart_label,
 )
-from entities.enemy import clear_enemy_defend_state, perform_enemy_action
-from entities.player import Fighter, HealthBar, DamageText, configure_player_module
+from entities.enemy import enemy_turns
+from entities.player import (
+    Fighter,
+    HealthBar,
+    DamageText,
+    configure_player_module,
+    player_turn,
+)
 from core.game import init_db, save_match_result
 from core.settings import (
     Bottom_Panel,
@@ -131,7 +137,7 @@ def run_game():
     )
 
     # Fighter Locations and stats
-    Player, Enemy_list, sakata, gintoki = create_fighters(Fighter)
+    Player, gintoki, sakata, Enemy_list = create_fighters(Fighter)
 
     # Create health bars
     Player_health_bar, gintoki_health_bar, sakata_health_bar = create_health(
@@ -233,91 +239,49 @@ def run_game():
         )
 
         if game_over == 0:
+            # player action turn
+            current_fighter, action_cooldown = player_turn(
+                Player,
+                current_fighter,
+                action_cooldown,
+                action_wait_time,
+                defend,
+                attack,
+                target,
+                potion,
+                player_potion_effect,
+                damage_text_group,
+                DamageText,
+                green,
+            )
+
             # check if player has died
-            if Player.alive == False:
+            if Player.alive is False:
                 game_over = -1
-            # player action
-            if Player.alive == True and current_fighter == 1:
-                if Player.is_defending and Player.action == 4:
-                    Player.is_defending = False
-                    Player.idle()
-                action_cooldown += 1
-                if action_cooldown >= action_wait_time:
-                    # look for player action
 
-                    # Defend
-                    if defend == True:
-                        Player.defend()
-                        current_fighter += 1
-                        action_cooldown = 0
-
-                    # Attack
-                    if attack == True and target is not None:
-                        was_alive = target.alive
-                        Player.attack(target)
-
-                        if was_alive and not target.alive:
-                            Player.potions += 1
-
-                        current_fighter += 1
-                        action_cooldown = 0
-
-                    # use Potion
-                    if potion == True and Player.potions > 0:
-                        # heal the player
-                        if Player.hp + player_potion_effect < Player.max_hp:
-                            heal_amount = player_potion_effect
-                        else:
-                            heal_amount = Player.max_hp - Player.hp
-                        Player.hp += heal_amount
-                        Player.potions -= 1
-                        damage_text = DamageText(
-                            Player.rect.centerx, Player.rect.y, str(heal_amount), green
-                        )
-                        damage_text_group.add(damage_text)
-
-                        current_fighter += 1
-                        action_cooldown = 0
-
-            # enemy action
-            # check if all enemys are dead
-            # enemy action
-            if any(enemy.alive for enemy in Enemy_list) == False:
+            # check if all enemies are dead
+            if any(enemy.alive for enemy in Enemy_list) is False:
                 game_over = 1
 
             # Save match result to database
-            if game_over != 0 and result_saved == False:
+            if game_over != 0 and result_saved is False:
                 match_outcome = "WIN" if game_over == 1 else "LOSS"
                 save_match_result(match_outcome, Player.hp, gintoki.hp, sakata.hp)
                 result_saved = True
 
-            for count, enemy in enumerate(Enemy_list):
-                if current_fighter == 2 + count:
-                    if enemy.alive == False:
-                        current_fighter += 1
-                        action_cooldown = 0
-                        continue
-
-                    action_cooldown += 1
-                    if action_cooldown < action_wait_time:
-                        continue
-
-                    # clear defend state if enemy was defending last turn
-                    clear_enemy_defend_state(enemy)
-
-                    perform_enemy_action(
-                        enemy,
-                        Player,
-                        enemy_potion_effect,
-                        enemy_defence_chance,
-                        damage_text_group,
-                        DamageText,
-                        green,
-                    )
-
-                    current_fighter += 1
-                    action_cooldown = 0
-                    break  # only one enemy acts per turn
+            # enemy turns
+            current_fighter, action_cooldown = enemy_turns(
+                Enemy_list,
+                Player,
+                current_fighter,
+                action_cooldown,
+                action_wait_time,
+                enemy_potion_effect,
+                enemy_defence_chance,
+                damage_text_group,
+                DamageText,
+                green,
+            )
 
             # reset turns if all have gone
             if current_fighter > total_fighters:

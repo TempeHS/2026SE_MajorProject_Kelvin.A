@@ -359,3 +359,56 @@ class DamageText(pygame.sprite.Sprite):
         self.counter += 1
         if self.counter > 30:
             self.kill()
+
+
+def player_turn(
+    player,
+    current_fighter,
+    action_cooldown,
+    action_wait_time,
+    defend,
+    attack,
+    target,
+    potion,
+    player_potion_effect,
+    damage_text_group,
+    damage_text_class,
+    green,
+):
+    if player.alive is False or current_fighter != 1:
+        return current_fighter, action_cooldown
+
+    if player.is_defending and player.action == 4:
+        player.is_defending = False
+        player.idle()
+
+    action_cooldown += 1
+    if action_cooldown < action_wait_time:
+        return current_fighter, action_cooldown
+
+    if defend:
+        player.defend()
+        return current_fighter + 1, 0
+
+    if attack and target is not None:
+        was_alive = target.alive
+        player.attack(target)
+        if was_alive and not target.alive:
+            player.potions += 1
+        return current_fighter + 1, 0
+
+    if potion and player.potions > 0:
+        if player.hp + player_potion_effect < player.max_hp:
+            heal_amount = player_potion_effect
+        else:
+            heal_amount = player.max_hp - player.hp
+
+        player.hp += heal_amount
+        player.potions -= 1
+        damage_text = damage_text_class(
+            player.rect.centerx, player.rect.y, str(heal_amount), green
+        )
+        damage_text_group.add(damage_text)
+        return current_fighter + 1, 0
+
+    return current_fighter, action_cooldown

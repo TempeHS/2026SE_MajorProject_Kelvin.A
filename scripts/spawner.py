@@ -8,7 +8,7 @@ def create_fighters(Fighter):
     sakata = Fighter(1650, 590, "Sakata", 60, 8, 1, flip=True)
 
     Enemy_list = [gintoki, sakata]
-    return Player, Enemy_list, sakata, gintoki
+    return Player, gintoki, sakata, Enemy_list
 
 
 def create_health(Player, gintoki, sakata, HealthBar, screen_height, bottom_panel):
