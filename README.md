@@ -24,7 +24,9 @@ bash start.sh
 
 3. Wait for port 6080 to come up, then open it from VS Code's Ports tab to view the game in your browser via noVNC.
 
-`start.sh` creates the virtual environment and installs `requirements.txt` automatically if needed, so no manual `pip install` step is required.
+
+> [!NOTE]
+> `start.sh` creates the virtual environment and installs `requirements.txt` automatically if needed, so no manual `pip install` step is required.
 
 ## Project Planning
 
