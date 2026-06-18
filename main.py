@@ -7,7 +7,8 @@ import os
 os.environ["SDL_RENDER_DRIVER"] = "software"
 
 import pygame
-from utilities import button
+
+from scripts.collision import player_action, hovering_enemy
 from scripts.spawner import create_fighters, create_health, create_buttons
 from core.scene_manager import (
     draw_text,
@@ -144,13 +145,6 @@ mode_button_rect, health_potion_button, restart_button = create_buttons(
     Potion_img,
     Restart_img,
 )
-# Restart button below Game Over text
-restart_button = button.Button(
-    screen_width // 2 - Restart_img.get_width() // 2,
-    screen_height // 2 + 50,
-    Restart_img,
-    1,
-)
 
 # init database
 init_db()
@@ -214,24 +208,9 @@ while run:
 
     # control player actions
     # reset action var
-    attack = False
     potion = False
-    target = None
-    defend = False
-
     pos = pygame.mouse.get_pos()
-
-    if player_mode == 1 and clicked:
-        defend = True
-
-    if player_mode == 0:
-        for count, enemy in enumerate(Enemy_list):
-            hover_rect = enemy.image.get_rect(midbottom=enemy.rect.midbottom)
-            if enemy.alive and hover_rect.collidepoint(pos):
-                if clicked == True:
-                    attack = True
-                    target = Enemy_list[count]
-                break
+    attack, defend, target = player_action(player_mode, clicked, Enemy_list, pos)
 
     if health_potion_button.draw(screen):
         potion = True
@@ -364,18 +343,13 @@ while run:
 
     # Draw cursor replacement as the final render step for minimum latency.
     live_pos = pygame.mouse.get_pos()
-    hovering_enemy = False
-    for enemy in Enemy_list:
-        hover_rect = enemy.image.get_rect(midbottom=enemy.rect.midbottom)
-        if enemy.alive and hover_rect.collidepoint(live_pos):
-            hovering_enemy = True
-            break
+    is_hovering_enemy = hovering_enemy(Enemy_list, live_pos)
 
     if player_mode == 1:  # DEFEND mode
         want_visible = False
         shield_pos = (live_pos[0] - shield_hotspot[0], live_pos[1] - shield_hotspot[1])
         screen.blit(Shield_img, shield_pos)
-    elif hovering_enemy:
+    elif is_hovering_enemy:
         want_visible = False
         katana_pos = (live_pos[0] - katana_hotspot[0], live_pos[1] - katana_hotspot[1])
         screen.blit(Katana_img, katana_pos)
