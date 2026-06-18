@@ -296,6 +296,7 @@ PB-02 is also a success with enemy and player statistics being saved into the da
 | PB ID | User Story                                            |
 | ----- | ----------------------------------------------------- |
 | PB-01 | The game should be split into its own respective uses |
+| PB-02 | The game runs as usual                                |
 
 ### Sprint Plan
 
@@ -305,20 +306,24 @@ PB-02 is also a success with enemy and player statistics being saved into the da
 
 ### Unit Test Summary
 
-| Test ID | Description                                         | Expected Result                  | Pass/Fail |
-| ------- | --------------------------------------------------- | -------------------------------- | --------- |
-| T-01    | Turn idicator shows on top left                     | visible on top left              | Pass      |
-| T-02    | Turn indicator cycles through current fighters turn | current_fighter value increases  | pass      |
-| T-03    | Indicator arrow visible                             | `draw()` on screen               | pass      |
-| T-04    | record game statistics                              | `save_match_result` executes sql | pass      |
+| Test ID | Description                           | Expected Result                                      | Pass/Fail |
+| ------- | ------------------------------------- | ---------------------------------------------------- | --------- |
+| T-01    | Game loop starts after refactor       | Window, assets, fighters and UI all render           | Pass      |
+| T-02    | Turn order                            | Turn cycle remains Player → Enemy1 → Enemy2 → repeat | Pass      |
+| T-03    | Attack mode                           | Click enemy to attack works                          | Pass      |
+| T-04    | Defend mode                           | Defend action works                                  | Pass      |
+| T-05    | Potion                                | Potion works                                         | Pass      |
+| T-06    | Match result                          | values recorded in database                          | Pass      |
+| T-07    | Game over and restart works           | Overlay appears and restart resets all combat state  | Pass      |
+| T-08    | Main module compiles after extraction | No parser/indentation errors in main flow            | Pass      |
 
 ### Sprint Review
 
-PB-01 is a success with clear turn indicators
-PB-02 is also a success with enemy and player statistics being saved into the database
+PB-01 is done, the script is now split up.
+PB-02 is also done, everything works fortunately
 
 ### Sprint Retrospective
 
-- **What went well:** The game is pretty much finished with some features missing
-- **What didn't go well:** Originally intended to be a wave-fighter game, and to include sounds
-- **What to improve next sprint:** 1. Refactor code to be more simpler to understand 2. Quality of life features (maybe)
+- **What went well:** Code is clearer, modules are easiet to rest
+- **What didn't go well:** Integration of the new sturcture introduced alot of indentation, flow, and logic errors
+- **What to improve next sprint:** This is the final sprint. (no more)
