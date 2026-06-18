@@ -1,6 +1,10 @@
 # WAIT FOR postCreateCommand TO RUN FIRST
 # USE THIS WHEN UPDATING/STARTING GAME TO LOAD IN VNC: bash start.sh
 # WAIT FOR PORT 6080 TO RUN
+import os
+
+os.environ["SDL_RENDER_DRIVER"] = "software"
+
 import pygame
 from utilities import button
 
@@ -78,6 +82,9 @@ player_potion_effect = Player_potion_effect
 enemy_potion_effect = Enemy_potion_effect
 clicked = False
 game_over = Game_over_default  # 0 = no winner, -1 = enemy win, 1 = player win
+
+cursor_visible = True
+pygame.mouse.set_visible(cursor_visible)
 
 # load fonts
 font, mode_font = load_fonts()
@@ -377,15 +384,20 @@ while run:
             break
 
     if player_mode == 1:  # DEFEND mode
-        pygame.mouse.set_visible(False)
+        want_visible = False
         shield_pos = (live_pos[0] - shield_hotspot[0], live_pos[1] - shield_hotspot[1])
         screen.blit(Shield_img, shield_pos)
     elif hovering_enemy:
-        pygame.mouse.set_visible(False)
+        want_visible = False
         katana_pos = (live_pos[0] - katana_hotspot[0], live_pos[1] - katana_hotspot[1])
         screen.blit(Katana_img, katana_pos)
     else:
-        pygame.mouse.set_visible(True)
+        want_visible = True
+
+    # Only toggle OS cursor visibility when state changes
+    if want_visible != cursor_visible:
+        pygame.mouse.set_visible(want_visible)
+        cursor_visible = want_visible
 
     pygame.display.flip()
     dt = clock.tick(target_fps) / 1000
