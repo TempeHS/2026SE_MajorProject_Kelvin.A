@@ -1,11 +1,19 @@
 # WAIT FOR postCreateCommand TO RUN FIRST
 # USE THIS WHEN UPDATING/STARTING GAME TO LOAD IN VNC: bash start.sh
 # WAIT FOR PORT 6080 TO RUN
-import math
-from pygame import draw
 import pygame
 from utilities import button
 
+from core.scene_manager import (
+    draw_text,
+    draw_bg,
+    draw_panel,
+    draw_mode_button,
+    draw_black_box_turn_indicator,
+    draw_turn_indicator,
+    draw_game_over_overlay,
+    draw_restart_label,
+)
 from entities.enemy import clear_enemy_defend_state, perform_enemy_action
 from entities.player import Fighter, HealthBar, DamageText, configure_player_module
 from core.game import init_db, save_match_result
@@ -94,119 +102,7 @@ cyan = Cyan
 # Anchor mouse position to tip
 katana_hotspot, shield_hotspot = get_cursor_hotspots(Shield_img)
 
-# create database
-DB = "/workspaces/2026SE_MajorProject_Kelvin.A/database/game.db"
 result_saved = False
-
-
-# create function for drawing text
-def draw_text(text, font, text_col, x, y):
-    img = font.render(text, False, text_col)
-    screen.blit(img, (x, y))
-
-
-# function to draw a background
-def draw_bg():
-    screen.blit(backround_img, (0, 0))
-
-
-# funtion to draw panel
-def draw_panel():
-    # draw panel
-    pygame.draw.rect(
-        screen,
-        (74, 45, 35),
-        (0, screen_height - bottom_panel, screen_width, bottom_panel),
-    )
-    screen.blit(panel_img, (0, screen_height - bottom_panel))
-    # show player stats
-    draw_text(
-        f"{Player.name} HP: {Player.hp}",
-        font,
-        cyan,
-        80,
-        screen_height - bottom_panel + 30,
-    )
-    # Go through enemy list and show stats
-    for count, i in enumerate(Enemy_list):
-        # show enemy stats
-        draw_text(
-            f"{i.name} HP: {i.hp}",
-            font,
-            red,
-            1580,
-            (screen_height - bottom_panel + 30) + count * 110,
-        )
-
-
-# change mode button
-def draw_mode_button():
-    if player_mode == 0:
-        fill = (170, 50, 50)
-        mode_text = "ATTACKING"
-    else:
-        fill = (50, 120, 170)
-        mode_text = "DEFENDING"
-
-    pygame.draw.rect(screen, fill, mode_button_rect, border_radius=12)
-    pygame.draw.rect(screen, white, mode_button_rect, 3, border_radius=12)
-
-    label_img = mode_font.render(mode_text, True, white)
-    label_rect = label_img.get_rect(center=mode_button_rect.center)
-    screen.blit(label_img, label_rect)
-
-
-def draw_black_box_turn_indicator():
-    # Draw a black box behind the turn indicator
-    box_width = 175
-    box_height = 50
-    box_x = 10
-    box_y = 10
-    pygame.draw.rect(
-        screen, (0, 0, 0), (box_x, box_y, box_width, box_height), border_radius=8
-    )
-
-
-# indicates whos turn it is
-def draw_turn_indicator():
-    if current_fighter == 1:
-        text = "Player's Turn"
-    else:
-        # display name of enemy Sakata/Gintoki
-        text = f"{Enemy_list[current_fighter - 2].name}'s Turn"
-
-    # skip indication if the enemy is dead.
-    if current_fighter > 1 and not Enemy_list[current_fighter - 2].alive:
-        text = f"{Enemy_list[current_fighter - 2].name} is dead"
-
-    # red enemy text, cyan player text
-    if current_fighter == 1:
-        label_img = mode_font.render(text, True, cyan)
-    else:
-        label_img = mode_font.render(text, True, red)
-
-    # should be on the top left of the screen
-    label_rect = label_img.get_rect(topleft=(20, 20))
-    screen.blit(label_img, label_rect)
-
-    # draw indicator arrow next to the left of the current_fighter
-    if current_fighter > 1:
-        enemy_rect = Enemy_list[current_fighter - 2].rect
-        arrow_x = enemy_rect.left - Indicator_img.get_width() + 5
-        arrow_y = enemy_rect.centery - Indicator_img.get_height() // 2
-
-    else:
-        # point to player
-        player_rect = Player.rect
-        arrow_x = player_rect.left - Indicator_img.get_width() + 5
-        arrow_y = player_rect.centery - Indicator_img.get_height() // 2
-
-    # animate indicator bob left and right slightly
-    bob_amount = 5
-    bob_speed = 0.005
-    bob_offset = bob_amount * math.sin(pygame.time.get_ticks() * bob_speed)
-    screen.blit(Indicator_img, (arrow_x + bob_offset, arrow_y))
-
 
 damage_text_group = pygame.sprite.Group()
 
@@ -282,10 +178,21 @@ while run:
     screen.fill((0, 0, 0))
 
     # draw background
-    draw_bg()
+    draw_bg(screen, backround_img)
 
     # draw panel
-    draw_panel()
+    draw_panel(
+        screen,
+        panel_img,
+        Player,
+        Enemy_list,
+        font,
+        cyan,
+        red,
+        screen_width,
+        screen_height,
+        bottom_panel,
+    )
     Player_health_bar.draw(Player.hp)
     Gintoki_health_bar.draw(Gintoki.hp)
     Sakata_health_bar.draw(Sakata.hp)
@@ -302,11 +209,13 @@ while run:
     damage_text_group.draw(screen)
 
     # draw mode button
-    draw_mode_button()
+    draw_mode_button(screen, player_mode, mode_button_rect, mode_font, white)
     # draw black box behind turn indicator
-    draw_black_box_turn_indicator()
+    draw_black_box_turn_indicator(screen)
     # draw turn indicator
-    draw_turn_indicator()
+    draw_turn_indicator(
+        screen, current_fighter, Player, Enemy_list, mode_font, cyan, red, Indicator_img
+    )
 
     # control player actions
     # reset action var
@@ -332,7 +241,14 @@ while run:
     if health_potion_button.draw(screen):
         potion = True
     # no. of potions shown in panel
-    draw_text(str(Player.potions), font, white, 190, screen_height - bottom_panel + 150)
+    draw_text(
+        screen,
+        str(Player.potions),
+        font,
+        cyan,
+        80,
+        screen_height - bottom_panel + 120,
+    )
 
     if game_over == 0:
         # check if player has died
@@ -427,20 +343,9 @@ while run:
 
     # check for game over and reset
     else:
-        if game_over == -1:
-            draw.rect(screen, (0, 0, 0), (0, 0, screen_width, screen_height))
-            text_surface = font.render("PLAYER SLAIN", False, yellow)
-            text_rect = text_surface.get_rect(
-                center=(screen_width // 2, screen_height // 2)
-            )
-            screen.blit(text_surface, text_rect)
-        if game_over == 1:
-            draw.rect(screen, (0, 0, 0), (0, 0, screen_width, screen_height))
-            text_surface = font.render("ENEMIES SLAIN", False, cyan)
-            text_rect = text_surface.get_rect(
-                center=(screen_width // 2, screen_height // 2)
-            )
-            screen.blit(text_surface, text_rect)
+        draw_game_over_overlay(
+            screen, game_over, screen_width, screen_height, font, yellow, cyan
+        )
 
         # Draw button
         if restart_button.draw(screen):
@@ -452,21 +357,15 @@ while run:
             game_over = 0
             result_saved = False
 
-        # Draw restart text
-        button_x = screen_width // 2 - Restart_img.get_width() // 2
-        button_y = screen_height // 2 + 50
-        label = font.render("RESTART", True, red)
-        # half text size
-        label = pygame.transform.scale(
-            label, (label.get_width() // 1.5, label.get_height() // 1.5)
-        )
-        label_rect = label.get_rect(
-            center=(
-                button_x + Restart_img.get_width() // 2,
-                button_y + Restart_img.get_height() // 2,
-            )
-        )
-        screen.blit(label, label_rect)
+            # clear states
+            damage_text_group.empty()
+            player_mode = Player_mode_default  # reset to default mode
+            attack = False
+            potion = False
+            clicked = False
+
+        # draws restart text
+        draw_restart_label(screen, font, red, Restart_img, screen_width, screen_height)
 
     # Draw cursor replacement as the final render step for minimum latency.
     live_pos = pygame.mouse.get_pos()
@@ -489,6 +388,6 @@ while run:
         pygame.mouse.set_visible(True)
 
     pygame.display.flip()
-    dt = clock.tick_busy_loop(target_fps) / 1000
+    dt = clock.tick(target_fps) / 1000
 
 pygame.quit()

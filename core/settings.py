@@ -4,7 +4,7 @@ import random
 Bottom_Panel = 360
 Screen_Width = 1920
 Screen_Height = 1080
-Target_fps = 144
+Target_fps = 60
 
 # define game variables
 Player_mode_default = 0  # default to attack mode

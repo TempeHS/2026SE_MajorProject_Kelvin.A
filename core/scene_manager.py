@@ -3,18 +3,29 @@ import pygame
 
 
 # create function for drawing text
-def draw_text(text, font, text_col, x, y):
+def draw_text(screen, text, font, text_col, x, y):
     img = font.render(text, False, text_col)
     screen.blit(img, (x, y))
 
 
 # function to draw a background
-def draw_bg():
+def draw_bg(screen, backround_img):
     screen.blit(backround_img, (0, 0))
 
 
 # funtion to draw panel
-def draw_panel():
+def draw_panel(
+    screen,
+    panel_img,
+    Player,
+    Enemy_list,
+    font,
+    cyan,
+    red,
+    screen_width,
+    screen_height,
+    bottom_panel,
+):
     # draw panel
     pygame.draw.rect(
         screen,
@@ -24,6 +35,7 @@ def draw_panel():
     screen.blit(panel_img, (0, screen_height - bottom_panel))
     # show player stats
     draw_text(
+        screen,
         f"{Player.name} HP: {Player.hp}",
         font,
         cyan,
@@ -34,6 +46,7 @@ def draw_panel():
     for count, i in enumerate(Enemy_list):
         # show enemy stats
         draw_text(
+            screen,
             f"{i.name} HP: {i.hp}",
             font,
             red,
@@ -43,7 +56,7 @@ def draw_panel():
 
 
 # change mode button
-def draw_mode_button():
+def draw_mode_button(screen, player_mode, mode_button_rect, mode_font, white):
     if player_mode == 0:
         fill = (170, 50, 50)
         mode_text = "ATTACKING"
@@ -59,7 +72,7 @@ def draw_mode_button():
     screen.blit(label_img, label_rect)
 
 
-def draw_black_box_turn_indicator():
+def draw_black_box_turn_indicator(screen):
     # Draw a black box behind the turn indicator
     box_width = 175
     box_height = 50
@@ -71,7 +84,9 @@ def draw_black_box_turn_indicator():
 
 
 # indicates whos turn it is
-def draw_turn_indicator():
+def draw_turn_indicator(
+    screen, current_fighter, Player, Enemy_list, mode_font, cyan, red, Indicator_img
+):
     if current_fighter == 1:
         text = "Player's Turn"
     else:
@@ -136,7 +151,7 @@ def draw_restart_label(screen, font, red, restart_img, screen_width, screen_heig
     button_y = screen_height // 2 + 50
     label = font.render("RESTART", True, red)
     label = pygame.transform.scale(
-        label, (label.get_width() // 1.5, label.get_height() // 1.5)
+        label, (int(label.get_width() // 1.5), int(label.get_height() // 1.5))
     )
     label_rect = label.get_rect(
         center=(
