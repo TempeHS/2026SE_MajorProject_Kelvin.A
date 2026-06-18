@@ -3,11 +3,12 @@
 # WAIT FOR PORT 6080 TO RUN
 import os
 
+# Set SDL to use a renderer that doesn't require hardware accel
 os.environ["SDL_RENDER_DRIVER"] = "software"
 
 import pygame
 from utilities import button
-
+from scripts.spawner import create_fighters, create_health, create_buttons
 from core.scene_manager import (
     draw_text,
     draw_bg,
@@ -128,33 +129,20 @@ configure_player_module(
 )
 
 # Fighter Locations and stats
-Player = Fighter(500, 600, "Samurai", 100, 14, 3)
-Gintoki = Fighter(1400, 600, "Gintoki", 85, 11, 2, flip=True)
-Sakata = Fighter(1650, 590, "Sakata", 60, 8, 1, flip=True)
+Player, Enemy_list, Sakata, Gintoki = create_fighters(Fighter)
 
-Enemy_list = []
-Enemy_list.append(Gintoki)
-Enemy_list.append(Sakata)
-
-Player_health_bar = HealthBar(
-    80, screen_height - bottom_panel + 80, Player.hp, Player.max_hp
+# Create health bars
+Player_health_bar, Gintoki_health_bar, Sakata_health_bar = create_health(
+    Player, Gintoki, Sakata, HealthBar, screen_height, bottom_panel
 )
-Gintoki_health_bar = HealthBar(
-    1580, screen_height - bottom_panel + 80, Gintoki.hp, Gintoki.max_hp
-)
-Sakata_health_bar = HealthBar(
-    1580, screen_height - bottom_panel + 190, Sakata.hp, Sakata.max_hp
-)
-
-# set button rect for mode change
-mode_button_rect = pygame.Rect(
-    Gintoki_health_bar.x - 400, Gintoki_health_bar.y - 8, 140, 60
-)
-
-# create buttons
-# Health potion
-health_potion_button = button.Button(
-    80, screen_height - bottom_panel + 150, Potion_img, 0.3
+# Create buttons
+mode_button_rect, health_potion_button, restart_button = create_buttons(
+    screen_width,
+    screen_height,
+    bottom_panel,
+    Gintoki_health_bar,
+    Potion_img,
+    Restart_img,
 )
 # Restart button below Game Over text
 restart_button = button.Button(
