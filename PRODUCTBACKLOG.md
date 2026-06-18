@@ -19,10 +19,12 @@ The combat of a game which is alike a RPG game, inspired by final fantasy turn-b
 | PB‑07 | I want damage and healing text to appear when actions occur                                              | Medium   | DamageText class exists, floats upward, deletes after lifespan, and triggers on damage/heal events     | Done   |
 | PB-08 | I want to add aniamtions for being attacked, and dying                                                   | Low      | Animations should play after the corresponding action                                                  | Done   |
 | PB-09 | When the player dies the game should end                                                                 | High     | When the player dies, the game should show black and a message on screem                               | Done   |
-| PB-10 | The player and enemies should be able to defend                                                          | Done     |
-| PB-11 | The amount a player defends from should vary and be fair                                                 | Done     |
-| PB-12 | Turns should be visible to the player                                                                    | Done     | Medium                                                                                                 |
-| PB-13 | I should track game statistics for future balancing                                                      | Done     | Low                                                                                                    |
+| PB-10 | The player and enemies should be able to defend                                                          | High     | Player and enemy can enter defend state                                                                | Done   |
+| PB-11 | The amount a player defends from should vary and be fair                                                 | Medium   | Defend outcome is by chance                                                                            | Done   |
+| PB-12 | Turns should be visible to the player                                                                    | Medium   | A visible indiator and text are shown                                                                  | Done   |
+| PB-13 | I should track game statistics for future balancing                                                      | Low      | Match values saved to database                                                                         | Done   |
+| PB-14 | The game should be split into its own respective uses                                                    | High     | Refactor code into seperate modules                                                                    | Done   |
+| PB-15 | The game runs as usual                                                                                   | High     | Game runs as usual                                                                                     | Done   |
 
 ---
 
@@ -43,3 +45,5 @@ The combat of a game which is alike a RPG game, inspired by final fantasy turn-b
 | 17-06-2026 | Add PB-11                     | Defence reduction is randomised with a chance to counter |
 | 17-06-2026 | Add PB-12                     | Adds visual turn indicators                              |
 | 17-06-2026 | Add PB-13                     | Database for future adjustments                          |
+| 18-06-2026 | Add PB-14                     | Sprint 8 refactor objective to improve maintainability   |
+| 18-06-2026 | Add PB-15                     | Preserve behavior                                        |
