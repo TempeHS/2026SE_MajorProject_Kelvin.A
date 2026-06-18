@@ -47,321 +47,341 @@ from core.settings import (
     White,
     Cyan,
 )
-
 from utilities.resource_loader import load_fonts, load_images, get_cursor_hotspots
 
-# pygame setup
-pygame.init()
 
-# Define constants
-bottom_panel = Bottom_Panel
-screen_width = Screen_Width
-screen_height = Screen_Height
-screen = pygame.display.set_mode((screen_width, screen_height))
-clock = pygame.time.Clock()
-run = True
-dt = 0
-target_fps = Target_fps
+def run_game():
 
-# define game variables
-player_mode = Player_mode_default  # default to attack mode
+    # pygame setup
+    pygame.init()
 
-enemy_defence_chance = Enemy_defence_chance  # 33% chance for enemy to defend
+    # Define constants
+    bottom_panel = Bottom_Panel
+    screen_width = Screen_Width
+    screen_height = Screen_Height
+    screen = pygame.display.set_mode((screen_width, screen_height))
+    clock = pygame.time.Clock()
+    run = True
+    target_fps = Target_fps
 
-# defence chances
-partial_block_min = Partial_block_min
-partial_block_max = Partial_block_max
-full_block_chance = Full_block_chance
-counter_chance = Counter_chance
+    # define game variables
+    player_mode = Player_mode_default  # default to attack mode
 
-current_fighter = Current_fighter_default
-total_fighters = Total_fighters
-action_cooldown = Action_cooldown_default
-action_wait_time = Action_wait_time
-attack = False
-potion = False
-player_potion_effect = Player_potion_effect
-enemy_potion_effect = Enemy_potion_effect
-clicked = False
-game_over = Game_over_default  # 0 = no winner, -1 = enemy win, 1 = player win
+    enemy_defence_chance = Enemy_defence_chance  # 33% chance for enemy to defend
 
-cursor_visible = True
-pygame.mouse.set_visible(cursor_visible)
+    # defence chances
+    partial_block_min = Partial_block_min
+    partial_block_max = Partial_block_max
+    full_block_chance = Full_block_chance
+    counter_chance = Counter_chance
 
-# load fonts
-font, mode_font = load_fonts()
-
-# define colours
-red = Red
-green = Green
-yellow = Yellow
-white = White
-cyan = Cyan
-
-(
-    backround_img,
-    panel_img,
-    Potion_img,
-    Katana_img,
-    Shield_img,
-    Indicator_img,
-    Restart_img,
-) = load_images(screen_width, screen_height, bottom_panel)
-
-# Anchor mouse position to tip
-katana_hotspot, shield_hotspot = get_cursor_hotspots(Shield_img)
-
-result_saved = False
-
-damage_text_group = pygame.sprite.Group()
-
-configure_player_module(
-    screen,
-    font,
-    red,
-    green,
-    yellow,
-    white,
-    partial_block_min,
-    partial_block_max,
-    full_block_chance,
-    counter_chance,
-    damage_text_group,
-)
-
-# Fighter Locations and stats
-Player, Enemy_list, Sakata, Gintoki = create_fighters(Fighter)
-
-# Create health bars
-Player_health_bar, Gintoki_health_bar, Sakata_health_bar = create_health(
-    Player, Gintoki, Sakata, HealthBar, screen_height, bottom_panel
-)
-# Create buttons
-mode_button_rect, health_potion_button, restart_button = create_buttons(
-    screen_width,
-    screen_height,
-    bottom_panel,
-    Gintoki_health_bar,
-    Potion_img,
-    Restart_img,
-)
-
-# init database
-init_db()
-
-while run:
-
+    current_fighter = Current_fighter_default
+    total_fighters = Total_fighters
+    action_cooldown = Action_cooldown_default
+    action_wait_time = Action_wait_time
+    attack = False
+    potion = False
+    player_potion_effect = Player_potion_effect
+    enemy_potion_effect = Enemy_potion_effect
     clicked = False
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if mode_button_rect.collidepoint(event.pos):
-                if player_mode == 0:
-                    player_mode = 1
-                elif player_mode == 1:
-                    player_mode = 0
-            else:
-                clicked = True
+    game_over = Game_over_default  # 0 = no winner, -1 = enemy win, 1 = player win
 
-    screen.fill((0, 0, 0))
+    cursor_visible = True
+    pygame.mouse.set_visible(cursor_visible)
 
-    # draw background
-    draw_bg(screen, backround_img)
+    # load fonts
+    font, mode_font = load_fonts()
 
-    # draw panel
-    draw_panel(
-        screen,
+    # define colours
+    red = Red
+    green = Green
+    yellow = Yellow
+    white = White
+    cyan = Cyan
+
+    (
+        backround_img,
         panel_img,
-        Player,
-        Enemy_list,
+        Potion_img,
+        Katana_img,
+        Shield_img,
+        Indicator_img,
+        Restart_img,
+    ) = load_images(screen_width, screen_height, bottom_panel)
+
+    # Anchor mouse position to tip
+    katana_hotspot, shield_hotspot = get_cursor_hotspots(Shield_img)
+
+    result_saved = False
+
+    damage_text_group = pygame.sprite.Group()
+
+    configure_player_module(
+        screen,
         font,
-        cyan,
         red,
+        green,
+        yellow,
+        white,
+        partial_block_min,
+        partial_block_max,
+        full_block_chance,
+        counter_chance,
+        damage_text_group,
+    )
+
+    # Fighter Locations and stats
+    Player, Enemy_list, sakata, gintoki = create_fighters(Fighter)
+
+    # Create health bars
+    Player_health_bar, gintoki_health_bar, sakata_health_bar = create_health(
+        Player, gintoki, sakata, HealthBar, screen_height, bottom_panel
+    )
+    # Create buttons
+    mode_button_rect, health_potion_button, restart_button = create_buttons(
         screen_width,
         screen_height,
         bottom_panel,
-    )
-    Player_health_bar.draw(Player.hp)
-    Gintoki_health_bar.draw(Gintoki.hp)
-    Sakata_health_bar.draw(Sakata.hp)
-
-    # draw fighters
-    Player.update()
-    Player.draw()
-    for enemy in Enemy_list:
-        enemy.update()
-        enemy.draw()
-
-    # draw damage text
-    damage_text_group.update()
-    damage_text_group.draw(screen)
-
-    # draw mode button
-    draw_mode_button(screen, player_mode, mode_button_rect, mode_font, white)
-    # draw black box behind turn indicator
-    draw_black_box_turn_indicator(screen)
-    # draw turn indicator
-    draw_turn_indicator(
-        screen, current_fighter, Player, Enemy_list, mode_font, cyan, red, Indicator_img
+        gintoki_health_bar,
+        Potion_img,
+        Restart_img,
     )
 
-    # control player actions
-    # reset action var
-    potion = False
-    pos = pygame.mouse.get_pos()
-    attack, defend, target = player_action(player_mode, clicked, Enemy_list, pos)
+    # init database
+    init_db()
 
-    if health_potion_button.draw(screen):
-        potion = True
-    # no. of potions shown in panel
-    draw_text(
-        screen,
-        str(Player.potions),
-        font,
-        cyan,
-        80,
-        screen_height - bottom_panel + 120,
-    )
+    while run:
 
-    if game_over == 0:
-        # check if player has died
-        if Player.alive == False:
-            game_over = -1
-        # player action
-        if Player.alive == True and current_fighter == 1:
-            if Player.is_defending and Player.action == 4:
-                Player.is_defending = False
-                Player.idle()
-            action_cooldown += 1
-            if action_cooldown >= action_wait_time:
-                # look for player action
+        clicked = False
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if mode_button_rect.collidepoint(event.pos):
+                    if player_mode == 0:
+                        player_mode = 1
+                    elif player_mode == 1:
+                        player_mode = 0
+                else:
+                    clicked = True
 
-                # Defend
-                if defend == True:
-                    Player.defend()
-                    current_fighter += 1
-                    action_cooldown = 0
+        screen.fill((0, 0, 0))
 
-                # Attack
-                if attack == True and target is not None:
-                    was_alive = target.alive
-                    Player.attack(target)
+        # draw background
+        draw_bg(screen, backround_img)
 
-                    if was_alive and not target.alive:
-                        Player.potions += 1
+        # draw panel
+        draw_panel(
+            screen,
+            panel_img,
+            Player,
+            Enemy_list,
+            font,
+            cyan,
+            red,
+            screen_width,
+            screen_height,
+            bottom_panel,
+        )
+        Player_health_bar.draw(Player.hp)
+        gintoki_health_bar.draw(gintoki.hp)
+        sakata_health_bar.draw(sakata.hp)
 
-                    current_fighter += 1
-                    action_cooldown = 0
+        # draw fighters
+        Player.update()
+        Player.draw()
+        for enemy in Enemy_list:
+            enemy.update()
+            enemy.draw()
 
-                # use Potion
-                if potion == True and Player.potions > 0:
-                    # heal the player
-                    if Player.hp + player_potion_effect < Player.max_hp:
-                        heal_amount = player_potion_effect
-                    else:
-                        heal_amount = Player.max_hp - Player.hp
-                    Player.hp += heal_amount
-                    Player.potions -= 1
-                    damage_text = DamageText(
-                        Player.rect.centerx, Player.rect.y, str(heal_amount), green
-                    )
-                    damage_text_group.add(damage_text)
+        # draw damage text
+        damage_text_group.update()
+        damage_text_group.draw(screen)
 
-                    current_fighter += 1
-                    action_cooldown = 0
-
-        # enemy action
-        # check if all enemys are dead
-        # enemy action
-        if any(enemy.alive for enemy in Enemy_list) == False:
-            game_over = 1
-
-        # Save match result to database
-        if game_over != 0 and result_saved == False:
-            match_outcome = "WIN" if game_over == 1 else "LOSS"
-            save_match_result(match_outcome, Player.hp, Gintoki.hp, Sakata.hp)
-            result_saved = True
-
-        for count, enemy in enumerate(Enemy_list):
-            if current_fighter == 2 + count:
-                if enemy.alive == False:
-                    current_fighter += 1
-                    action_cooldown = 0
-                    continue
-
-                action_cooldown += 1
-                if action_cooldown < action_wait_time:
-                    continue
-
-                # clear defend state if enemy was defending last turn
-                clear_enemy_defend_state(enemy)
-
-                perform_enemy_action(
-                    enemy,
-                    Player,
-                    enemy_potion_effect,
-                    enemy_defence_chance,
-                    damage_text_group,
-                    DamageText,
-                    green,
-                )
-
-                current_fighter += 1
-                action_cooldown = 0
-                break  # only one enemy acts per turn
-
-        # reset turns if all have gone
-        if current_fighter > total_fighters:
-            current_fighter = 1
-
-    # check for game over and reset
-    else:
-        draw_game_over_overlay(
-            screen, game_over, screen_width, screen_height, font, yellow, cyan
+        # draw mode button
+        draw_mode_button(screen, player_mode, mode_button_rect, mode_font, white)
+        # draw black box behind turn indicator
+        draw_black_box_turn_indicator(screen)
+        # draw turn indicator
+        draw_turn_indicator(
+            screen,
+            current_fighter,
+            Player,
+            Enemy_list,
+            mode_font,
+            cyan,
+            red,
+            Indicator_img,
         )
 
-        # Draw button
-        if restart_button.draw(screen):
-            Player.reset()
-            for enemy in Enemy_list:
-                enemy.reset()
-            current_fighter = 1
-            action_cooldown = 0
-            game_over = 0
-            result_saved = False
+        # control player actions
+        # reset action var
+        potion = False
+        pos = pygame.mouse.get_pos()
+        attack, defend, target = player_action(player_mode, clicked, Enemy_list, pos)
 
-            # clear states
-            damage_text_group.empty()
-            player_mode = Player_mode_default  # reset to default mode
-            attack = False
-            potion = False
-            clicked = False
+        if health_potion_button.draw(screen):
+            potion = True
+        # no. of potions shown in panel
+        draw_text(
+            screen,
+            str(Player.potions),
+            font,
+            cyan,
+            80,
+            screen_height - bottom_panel + 120,
+        )
 
-        # draws restart text
-        draw_restart_label(screen, font, red, Restart_img, screen_width, screen_height)
+        if game_over == 0:
+            # check if player has died
+            if Player.alive == False:
+                game_over = -1
+            # player action
+            if Player.alive == True and current_fighter == 1:
+                if Player.is_defending and Player.action == 4:
+                    Player.is_defending = False
+                    Player.idle()
+                action_cooldown += 1
+                if action_cooldown >= action_wait_time:
+                    # look for player action
 
-    # Draw cursor replacement as the final render step for minimum latency.
-    live_pos = pygame.mouse.get_pos()
-    is_hovering_enemy = hovering_enemy(Enemy_list, live_pos)
+                    # Defend
+                    if defend == True:
+                        Player.defend()
+                        current_fighter += 1
+                        action_cooldown = 0
 
-    if player_mode == 1:  # DEFEND mode
-        want_visible = False
-        shield_pos = (live_pos[0] - shield_hotspot[0], live_pos[1] - shield_hotspot[1])
-        screen.blit(Shield_img, shield_pos)
-    elif is_hovering_enemy:
-        want_visible = False
-        katana_pos = (live_pos[0] - katana_hotspot[0], live_pos[1] - katana_hotspot[1])
-        screen.blit(Katana_img, katana_pos)
-    else:
-        want_visible = True
+                    # Attack
+                    if attack == True and target is not None:
+                        was_alive = target.alive
+                        Player.attack(target)
 
-    # Only toggle OS cursor visibility when state changes
-    if want_visible != cursor_visible:
-        pygame.mouse.set_visible(want_visible)
-        cursor_visible = want_visible
+                        if was_alive and not target.alive:
+                            Player.potions += 1
 
-    pygame.display.flip()
-    dt = clock.tick(target_fps) / 1000
+                        current_fighter += 1
+                        action_cooldown = 0
 
-pygame.quit()
+                    # use Potion
+                    if potion == True and Player.potions > 0:
+                        # heal the player
+                        if Player.hp + player_potion_effect < Player.max_hp:
+                            heal_amount = player_potion_effect
+                        else:
+                            heal_amount = Player.max_hp - Player.hp
+                        Player.hp += heal_amount
+                        Player.potions -= 1
+                        damage_text = DamageText(
+                            Player.rect.centerx, Player.rect.y, str(heal_amount), green
+                        )
+                        damage_text_group.add(damage_text)
+
+                        current_fighter += 1
+                        action_cooldown = 0
+
+            # enemy action
+            # check if all enemys are dead
+            # enemy action
+            if any(enemy.alive for enemy in Enemy_list) == False:
+                game_over = 1
+
+            # Save match result to database
+            if game_over != 0 and result_saved == False:
+                match_outcome = "WIN" if game_over == 1 else "LOSS"
+                save_match_result(match_outcome, Player.hp, gintoki.hp, sakata.hp)
+                result_saved = True
+
+            for count, enemy in enumerate(Enemy_list):
+                if current_fighter == 2 + count:
+                    if enemy.alive == False:
+                        current_fighter += 1
+                        action_cooldown = 0
+                        continue
+
+                    action_cooldown += 1
+                    if action_cooldown < action_wait_time:
+                        continue
+
+                    # clear defend state if enemy was defending last turn
+                    clear_enemy_defend_state(enemy)
+
+                    perform_enemy_action(
+                        enemy,
+                        Player,
+                        enemy_potion_effect,
+                        enemy_defence_chance,
+                        damage_text_group,
+                        DamageText,
+                        green,
+                    )
+
+                    current_fighter += 1
+                    action_cooldown = 0
+                    break  # only one enemy acts per turn
+
+            # reset turns if all have gone
+            if current_fighter > total_fighters:
+                current_fighter = 1
+
+        # check for game over and reset
+        else:
+            draw_game_over_overlay(
+                screen, game_over, screen_width, screen_height, font, yellow, cyan
+            )
+
+            # Draw button
+            if restart_button.draw(screen):
+                Player.reset()
+                for enemy in Enemy_list:
+                    enemy.reset()
+                current_fighter = 1
+                action_cooldown = 0
+                game_over = 0
+                result_saved = False
+
+                # clear states
+                damage_text_group.empty()
+                player_mode = Player_mode_default  # reset to default mode
+                attack = False
+                potion = False
+                clicked = False
+
+            # draws restart text
+            draw_restart_label(
+                screen, font, red, Restart_img, screen_width, screen_height
+            )
+
+        # Draw cursor replacement as the final render step for minimum latency.
+        live_pos = pygame.mouse.get_pos()
+        is_hovering_enemy = hovering_enemy(Enemy_list, live_pos)
+
+        if player_mode == 1:  # DEFEND mode
+            want_visible = False
+            shield_pos = (
+                live_pos[0] - shield_hotspot[0],
+                live_pos[1] - shield_hotspot[1],
+            )
+            screen.blit(Shield_img, shield_pos)
+        elif is_hovering_enemy:
+            want_visible = False
+            katana_pos = (
+                live_pos[0] - katana_hotspot[0],
+                live_pos[1] - katana_hotspot[1],
+            )
+            screen.blit(Katana_img, katana_pos)
+        else:
+            want_visible = True
+
+        # Only toggle OS cursor visibility when state changes
+        if want_visible != cursor_visible:
+            pygame.mouse.set_visible(want_visible)
+            cursor_visible = want_visible
+
+        pygame.display.flip()
+        clock.tick(target_fps)
+
+    pygame.quit()
+
+
+if __name__ == "__main__":
+    run_game()
