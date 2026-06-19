@@ -4,7 +4,7 @@ A turn-based RPG combat prototype built with Python and pygame-ce, inspired by F
 
 ## Status
 
-- **Current sprint:** Sprint 8 (final sprint of the project)
+- **Current sprint:** Sprint 3
 
 - **Last increment:** Attacking, turn order, and random attack variants all work. Health bars take damage. Clicking on an enemy targets it. Katana hover cursor appears, but the default OS cursor can't be hidden due to VNC limitations (carried forward as a bug).
 
