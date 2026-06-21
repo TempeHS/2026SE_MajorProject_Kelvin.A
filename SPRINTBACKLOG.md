@@ -121,8 +121,9 @@ PB-04 Cursor collision works through pygame library, clicking is also done throu
 
 ### Sprint Review
 
-PB-01 was a success and idle animations were implemented, attack animations were also added to test action logic aswell.
-PB-02 Works correctly as it should, but logic it currently untested as there is no attack function yet
+PB-01 Potions are succefully added
+PB-02 Enemies are also able to heal with harcoded logic
+PB-03 Damage displays
 
 ### Sprint Retrospective
 
@@ -197,8 +198,8 @@ PB-02 Healing text follows the same logic. Colour is different. Healing is imple
 
 ### Sprint Review
 
-PB-01 Hurt and death animations were added and integrated into combat system.
-PB-02 When the player dies, the screen appears successfully
+PB-01 Animations are successfully all added
+PBG-02 Also succefully implemented with a game overlay for when the player dies
 
 ### Sprint Retrospective
 
