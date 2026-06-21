@@ -113,8 +113,11 @@ PB-04 Cursor collision works through pygame library, clicking is also done throu
 
 | Test ID | Description                      | Expected Result                          | Pass/Fail |
 | ------- | -------------------------------- | ---------------------------------------- | --------- |
-| T-01    | Health bar renders green segment | Green rect width = `200 * (hp/max_hp)`   | Pass      |
-| T-02    | Idle animation loops             | `frame_index` resets to 0 at end of list | Pass      |
+| T-01    | Potions display | Draws on screen   | Pass      |
+| T-02    | Player clicks on potion             | Potion collision detected, potion count goes down | Pass      |
+| T-03 |    Enemy uses potion when under 50% hp|  On their turn use potion is True  |Pass |
+| T-04 | Enemy and playe cannot use potions if run out  | Potion count is 0, unable to heal |Pass  |
+| T-05 | Displays text damage| `DisplayDamage` to true |Pass |
 
 ### Sprint Review
 
@@ -188,8 +191,9 @@ PB-02 Healing text follows the same logic. Colour is different. Healing is imple
 
 | Test ID | Description                      | Expected Result                          | Pass/Fail |
 | ------- | -------------------------------- | ---------------------------------------- | --------- |
-| T-01    | Health bar renders green segment | Green rect width = `200 * (hp/max_hp)`   | Pass      |
-| T-02    | Idle animation loops             | `frame_index` resets to 0 at end of list | Pass      |
+| T-01    | All animations work based on index | All change with `action`   | Pass      |
+| T-02    | Idle/attack/Hurt/Die animation loops             | `frame_index` changes to correct animation | Pass      |
+| T-03    | Player dies, screen overlay appears | `draw` the overlay when health is 0| Pass |
 
 ### Sprint Review
 
