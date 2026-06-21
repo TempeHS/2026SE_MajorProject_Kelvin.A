@@ -61,9 +61,6 @@ bash start.sh
 > [!NOTE]
 > `start.sh` creates the virtual environment and installs `requirements.txt` automatically if needed. You do not need to run `pip install` manually.
 
-> [!NOTE]
-> Run game in fullscreen for the best experience!
-
 ## Project Planning
 
 - Product Backlog — user stories, priorities, and acceptance criteria
