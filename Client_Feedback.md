@@ -8,3 +8,6 @@
 |Sprint 6 | "Tracking whose turn it is that makes the game confusing "| Added visible indicator and text in Sprint 7 + add an database feature to log final combat moments |
 |Sprint 7 | "The code looks good, and the gameplay is good enough" | refactored the code structure in Sprint 8 on my own basis |
 |Sprint 8 | "I don't get what you did, but at least it still works" | Final development sprint |
+
+> [!NOTE]
+> This is a summaried version of complete feedback of multiple people.

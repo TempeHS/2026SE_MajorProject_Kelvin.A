@@ -12,23 +12,86 @@ A turn-based RPG combat prototype built with Python and pygame-ce, inspired by F
 
 ## How to Run
 
-This project is set up to run inside the provided Dev Container (`.devcontainer/devcontainer.json`), which installs Xvfb, x11vnc, noVNC, and the Python virtual environment automatically via `postCreateCommand`.
+### Environment
 
-1. Open the project (wait for postCreateCommand to finish).
+Run this project inside the provided Dev Container (`.devcontainer/devcontainer.json`).
 
-2. Run the game inside a `bash` terminal with:
+The container automatically sets up:
 
-```
+- Xvfb
+- x11vnc
+- noVNC
+- Python virtual environment (via `postCreateCommand`)
+
+### Quick Start
+
+1. Open the project in VS Code and wait for `postCreateCommand` to finish.
+2. Open a `bash` terminal.
+3. Start the game:
+
+```bash
 bash start.sh
 ```
 
-3. Wait for port 6080 to come up, then open it from VS Code's Ports tab to view the game in your browser via noVNC.
+![Terminal output after running start.sh, showing services launching and the noVNC URL becoming available](READMEImages/image.png)
 
+### Connect to the Game (noVNC)
+
+1. Wait for port `6080` to appear in the VS Code Ports tab.
+2. Open port `6080` in your browser.
+3. Open either `vnc.html` or `vnc_auto.html`.
+4. Click **Connect**.
+5. Switch to fullscreen for the best experience.
 
 > [!NOTE]
-> `start.sh` creates the virtual environment and installs `requirements.txt` automatically if needed, so no manual `pip install` step is required.
+> NEVER share the public link with anyone
+
+![VS Code Ports tab showing port 6080, which is the noVNC endpoint for viewing the game](READMEImages/image-1.png)
+
+![Browser page listing noVNC client options; open vnc.html or vnc_auto.html to start a session](READMEImages/image-3.png)
+
+![noVNC landing page before connecting to the remote display](READMEImages/image-2.png)
+
+![noVNC connection screen where you press Connect to open the game display](READMEImages/image-4.png)
+
+![noVNC in-session control menu with options such as keyboard, clipboard, and settings](READMEImages/image-5.png)
+
+![Fullscreen toggle in noVNC for a larger and smoother gameplay view](READMEImages/image-6.png)
+
+> [!NOTE]
+> `start.sh` creates the virtual environment and installs `requirements.txt` automatically if needed. You do not need to run `pip install` manually.
+
+> [!NOTE]
+> Run game in fullscreen for the best experience!
 
 ## Project Planning
 
 - Product Backlog — user stories, priorities, and acceptance criteria
 - Sprint Backlog — sprint goals, plans, test summaries, and retrospectives
+
+## Licence
+
+This project is licensed under the GNU General Public License v3.0 (GPL-3.0).
+
+See the full license text in [LICENSE](LICENSE).
+
+## How Others Can Use This Code
+
+You are welcome to use, study, modify, and redistribute this code under the terms of GPL-3.0.
+
+If you share modified versions, you must:
+
+1. Keep the same GPL-3.0 license.
+2. Include the original copyright and license notices.
+3. Make the source code for your distributed version available.
+4. Clearly mark significant changes you made.
+
+For complete legal terms, refer to [LICENSE](LICENSE).
+
+## Acknowledgements
+
+- **Client:** for iterative gameplay feedback across sprints.
+- **Teacher:** Mr Jones for development guidance and review support.
+- **Open-source libraries used:**
+  - [pygame-ce](https://github.com/pygame-community/pygame-ce)
+  - Python standard library modules, including `sqlite3` for match result storage.
