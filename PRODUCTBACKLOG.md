@@ -25,6 +25,10 @@ The combat of a game which is alike a RPG game, inspired by final fantasy turn-b
 | PB-13 | I should track game statistics for future balancing                                                      | Low      | Match values saved to database                                                                         | Done   |
 | PB-14 | The game should be split into its own respective uses                                                    | High     | Refactor code into seperate modules                                                                    | Done   |
 | PB-15 | The game runs as usual                                                                                   | High     | Game runs as usual                                                                                     | Done   |
+| PB-16 | Turns should be visible with an indicator arrow | Medium | Arrow and text update based on ``current_fighter`` | Done |
+| PB-17 | Refactor codebase for clarity and maintainability | High | Code separated into modules, no indentation or flow errors | Done |
+
+
 
 ---
 
